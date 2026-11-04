@@ -6,7 +6,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#000000">
-<title>Nexus Admin</title>
+<title>GoalForce Admin</title>
 <style>
 :root { color-scheme: dark; --bg:#07080b; --card:#12141a; --line:rgba(255,255,255,.09); --text:#fff; --muted:#9a9fac; --cyan:#00f0ff; --green:#00ff88; --yellow:#ffcc00; --red:#ff3366; --purple:#b026ff; }
 @media (prefers-color-scheme: light) { :root:not([data-t="dark"]) { color-scheme: light; --bg:#f4f5f7; --card:#fff; --line:rgba(0,0,0,.1); --text:#111; --muted:#5f6573; --cyan:#0097a7; --green:#00805a; --yellow:#8a6500; --red:#d01c4a; --purple:#8e24aa; } }
@@ -58,7 +58,7 @@ a { color: var(--cyan); }
 
 <div id="login" class="hidden">
   <div class="card">
-    <h1>Nexus Admin</h1>
+    <h1>GoalForce Admin</h1>
     <div class="muted" style="margin-top: 6px;">Only people added as admins can enter.</div>
     <label for="lEmail">Email</label><input type="email" id="lEmail" autocomplete="email">
     <label for="lPass">Password</label><input type="password" id="lPass" autocomplete="current-password" onkeydown="if (event.key === 'Enter') doLogin()">
@@ -69,7 +69,7 @@ a { color: var(--cyan); }
 </div>
 
 <div id="app" class="hidden">
-  <div class="top"><div><h1>Nexus Admin</h1><div class="muted" id="who"></div></div><div class="row"><a class="btn ghost" href="index.html" style="text-decoration: none;">Open app</a><button class="btn ghost" onclick="logout()">Log out</button></div></div>
+  <div class="top"><div><h1>GoalForce Admin</h1><div class="muted" id="who"></div></div><div class="row"><a class="btn ghost" href="index.html" style="text-decoration: none;">Open app</a><button class="btn ghost" onclick="logout()">Log out</button></div></div>
   <div class="nav" id="nav"></div>
   <main id="view"></main>
 </div>
@@ -223,7 +223,7 @@ async function exportUsers() {
     while (off < total && off < 20000) { const r = await rpc('admin_users', { q: usersState.q, lim: 1000, off }); total = r.total; all = all.concat(r.rows); if (!r.rows.length) break; off += 1000; }
     const head = ['email', 'joined', 'last_seen', 'plan', 'premium_until', 'suspended', 'habits', 'xp', 'last_backup'];
     const lines = [head.join(',')].concat(all.map(r => [r.email, r.created_at, r.last_seen, r.plan, r.premium_until, r.banned, r.habits, r.xp, r.synced_at].map(csvCell).join(',')));
-    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' })); a.download = 'nexus-users-' + new Date().toISOString().slice(0, 10) + '.csv';
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' })); a.download = 'goalforce-users-' + new Date().toISOString().slice(0, 10) + '.csv';
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); toast('Exported ' + all.length + ' users');
   } catch (e) { toast(e.message, true); }
 }
