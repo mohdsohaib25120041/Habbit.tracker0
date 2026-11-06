@@ -1,13 +1,13 @@
 -- ============================================================
--- NEXUS / GOALFORCE: ek hi file. Poora copy karo -> Supabase SQL Editor me paste -> Run
+-- GOALFORCE: ek hi file. Poora copy karo -> Supabase SQL Editor me paste -> Run
 -- ============================================================
 
 -- ============================================================
--- Nexus: database setup for Supabase
+-- GoalForce: database setup for Supabase
 -- Run this FIRST (file 1 of 2): Supabase dashboard > SQL Editor > New query > paste > Run
 -- ============================================================
 
--- One row per user. "data" holds that user's whole Nexus data (habits, tasks, notes, water...).
+-- One row per user. "data" holds that user's whole GoalForce data (habits, tasks, notes, water...).
 create table if not exists public.user_data (
   user_id    uuid primary key references auth.users (id) on delete cascade,
   data       jsonb not null,
@@ -57,7 +57,7 @@ grant execute on function public.delete_my_account() to authenticated;
 
 
 -- ============================================================
--- Nexus Phase 4/5: Admin panel, premium, announcements, settings, feedback
+-- GoalForce Phase 4/5: Admin panel, premium, announcements, settings, feedback
 -- Run AFTER 1_database_setup.sql (file 2 of 2):  SQL Editor > New query > paste > Run
 -- Safe to run again (it uses "if not exists" / "or replace").
 -- ============================================================

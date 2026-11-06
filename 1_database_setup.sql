@@ -1,9 +1,9 @@
 -- ============================================================
--- Nexus: database setup for Supabase
+-- GoalForce: database setup for Supabase
 -- Run this FIRST (file 1 of 2): Supabase dashboard > SQL Editor > New query > paste > Run
 -- ============================================================
 
--- One row per user. "data" holds that user's whole Nexus data (habits, tasks, notes, water...).
+-- One row per user. "data" holds that user's whole GoalForce data (habits, tasks, notes, water...).
 create table if not exists public.user_data (
   user_id    uuid primary key references auth.users (id) on delete cascade,
   data       jsonb not null,

@@ -79,7 +79,7 @@ a { color: var(--cyan); }
 
 <script src="config.js"></script>
 <script>
-const CFG = Object.assign({ url: '', key: '' }, window.NEXUS_CONFIG || {});
+const CFG = Object.assign({ url: '', key: '' }, window.GOALFORCE_CONFIG || {});
 const READY = /^(https:\/\/|http:\/\/localhost)/.test(CFG.url) && CFG.key.length > 20;
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');

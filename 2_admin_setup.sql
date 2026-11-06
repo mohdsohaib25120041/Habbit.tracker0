@@ -1,5 +1,5 @@
 -- ============================================================
--- Nexus Phase 4/5: Admin panel, premium, announcements, settings, feedback
+-- GoalForce Phase 4/5: Admin panel, premium, announcements, settings, feedback
 -- Run AFTER 1_database_setup.sql (file 2 of 2):  SQL Editor > New query > paste > Run
 -- Safe to run again (it uses "if not exists" / "or replace").
 -- ============================================================

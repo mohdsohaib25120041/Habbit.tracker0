@@ -1,6 +1,6 @@
-// GoalForce / Nexus service worker: works offline, and always tries to fetch the newest page first.
+// GoalForce service worker: works offline, and always tries to fetch the newest page first.
 // When you publish a new version, change CACHE (for example goalforce-v3) so old files are dropped.
-const CACHE = 'goalforce-v2';
+const CACHE = 'goalforce-v3';
 const ASSETS = ['./', 'index.html', 'admin.html', 'privacy.html', 'config.js', 'native.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png'];
 
 self.addEventListener('install', e => {

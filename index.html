@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://*.supabase.co; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'">
     <meta name="theme-color" content="#000000">
-    <meta name="description" content="Nexus - a gamified habit tracker with levels, badges, tasks and focus tools.">
+    <meta name="description" content="GoalForce - a gamified habit tracker with levels, badges, tasks and focus tools.">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Nexus">
+    <meta name="apple-mobile-web-app-title" content="GoalForce">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" href="icons/icon-192.png">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -16,7 +16,7 @@
     <script>
         try { if (localStorage.getItem('quantumTheme') === 'light') document.documentElement.setAttribute('data-theme', 'light'); } catch (e) {}
     </script>
-    <title>Nexus - Gamified Habit Tracker</title>
+    <title>GoalForce - Gamified Habit Tracker</title>
     <style>
         /* Offline-first: use system fallbacks instead of requiring a remote font request. */
 
@@ -347,9 +347,10 @@
 
         .calendar-grid {
             display: grid;
-            grid-template-columns: 150px repeat(31, 35px);
+            grid-template-columns: 160px repeat(var(--cal-days, 31), 35px);
             gap: 8px;
             min-width: max-content;
+            align-items: center;
         }
 
         .cal-header-cell {
@@ -357,9 +358,30 @@
             font-size: 11px;
             color: var(--text-muted);
             font-weight: 500;
-            padding-bottom: 10px;
+            padding-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.25;
         }
-        .cal-header-cell.today { color: var(--neon-cyan); font-weight: bold; }
+        .cal-header-cell .cal-dow {
+            font-size: 9px;
+            opacity: 0.7;
+            text-transform: uppercase;
+        }
+        .cal-header-cell.today { color: var(--neon-cyan); font-weight: 700; }
+        .cal-header-cell.cal-sticky-head {
+            flex-direction: row;
+            justify-content: flex-start;
+            text-align: left;
+            position: sticky;
+            left: 0;
+            z-index: 3;
+            background: var(--modal-bg);
+            padding: 4px 10px 8px 4px;
+            border-right: 1px solid var(--border-color);
+        }
 
         .cal-habit-name {
             font-size: 13px;
@@ -369,7 +391,13 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            padding-right: 10px;
+            padding: 0 10px 0 4px;
+            height: 35px;
+            position: sticky;
+            left: 0;
+            z-index: 2;
+            background: var(--modal-bg);
+            border-right: 1px solid var(--border-color);
         }
 
         .cal-cell {
@@ -835,8 +863,9 @@
             .panel { padding: 15px; }
             .achievements-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
             .badge-card { padding: 16px 10px; }
-            .calendar-grid { grid-template-columns: 120px repeat(31, 30px); }
+            .calendar-grid { grid-template-columns: 125px repeat(var(--cal-days, 31), 30px); gap: 6px; }
             .cal-cell { width: 30px; height: 30px; }
+            .cal-habit-name { height: 30px; font-size: 12px; }
         }
 
         /* --- MOBILE POLISH --- */
@@ -1027,13 +1056,13 @@
     </style>
 </head>
 <body class="auth-locked">
-    <noscript><div style="padding:40px;text-align:center;font-family:system-ui,sans-serif;">Nexus needs JavaScript. Please turn it on in your browser settings.</div></noscript>
+    <noscript><div style="padding:40px;text-align:center;font-family:system-ui,sans-serif;">GoalForce needs JavaScript. Please turn it on in your browser settings.</div></noscript>
     <div id="bootLoader" style="position:fixed;inset:0;z-index:9000;background:var(--bg-base);color:var(--text-main);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:system-ui,sans-serif;">
         <div style="width:42px;height:42px;border-radius:50%;border:4px solid rgba(128,128,128,.25);border-top-color:var(--neon-cyan);animation:bootSpin .8s linear infinite;"></div>
-        <div style="font-size:15px;color:var(--text-muted);">Loading Nexus...</div>
+        <div style="font-size:15px;color:var(--text-muted);">Loading GoalForce...</div>
     </div>
     <style>@keyframes bootSpin{to{transform:rotate(360deg)}}</style>
-    <script>setTimeout(function(){var l=document.getElementById('bootLoader');if(l){l.innerHTML='<div style="text-align:center;padding:24px;">Nexus could not start.<br>Please refresh the page. Your data is safe on this device.</div>';}},8000);</script>
+    <script>setTimeout(function(){var l=document.getElementById('bootLoader');if(l){l.innerHTML='<div style="text-align:center;padding:24px;">GoalForce could not start.<br>Please refresh the page. Your data is safe on this device.</div>';}},8000);</script>
 
     <div class="notify-stack" id="notifyStack"></div>
 
@@ -1042,7 +1071,7 @@
         <div class="auth-gate-card">
             <div class="auth-gate-logo">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M13 2L4.5 13h6L10 22l8.5-11h-6L13 2z"/></svg>
-                Nexus<span>.</span>
+                GoalForce<span>.</span>
             </div>
             <div class="auth-gate-sub">Log in or create an account to access your Habit Tracker, Skincare Routine, To-Do List, and Analytics.</div>
 
@@ -1071,7 +1100,7 @@
                 <input type="checkbox" onchange="document.getElementById('gatePass').type = this.checked ? 'text' : 'password'"> Show password
             </label>
 
-            <button type="button" class="btn-primary" id="gateSubmitBtn" style="width: 100%; padding: 12px; font-size: 15px;" onclick="submitGateAuth()">Log In to Nexus</button>
+            <button type="button" class="btn-primary" id="gateSubmitBtn" style="width: 100%; padding: 12px; font-size: 15px;" onclick="submitGateAuth()">Log In to GoalForce</button>
 
             <div id="gateMsg" class="setting-desc" style="margin-top: 12px; min-height: 20px; text-align: center; font-weight: 500;" aria-live="polite"></div>
         </div>
@@ -1080,7 +1109,7 @@
     <aside class="sidebar">
         <div class="logo">
             <svg class="icon" viewBox="0 0 24 24"><path d="M13 2L4.5 13h6L10 22l8.5-11h-6L13 2z"/></svg>
-            Nexus<span>.</span>
+            GoalForce<span>.</span>
         </div>
         <div class="nav-links">
             <a href="#" class="nav-item active" onclick="changePage('dashboard', this); return false;">
@@ -1270,11 +1299,18 @@
 
             <!-- MONTHLY CALENDAR SECTION -->
             <section class="calendar-section" data-sec="tracker">
-                <div class="panel-header" style="margin-bottom: 15px;">
-                    <h2 class="panel-title">Monthly Tracker</h2>
-                    <span style="font-size: 12px; color: var(--text-muted);">Scroll right to see all days. Tap yesterday to fix it.</span>
+                <div class="panel-header" style="margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h2 class="panel-title" id="calMonthTitle">Monthly Tracker</h2>
+                        <span style="font-size: 12px; color: var(--text-muted);">Scroll right to see all days. Tap today or yesterday to toggle.</span>
+                    </div>
+                    <div style="display: flex; gap: 12px; align-items: center; font-size: 11px; color: var(--text-muted); flex-wrap: wrap;">
+                        <span style="display: inline-flex; align-items: center; gap: 5px;"><span style="width: 12px; height: 12px; border-radius: 4px; background: rgba(0, 255, 136, 0.25); border: 1px solid var(--neon-green); display: inline-block;"></span>Done</span>
+                        <span style="display: inline-flex; align-items: center; gap: 5px;"><span style="width: 12px; height: 12px; border-radius: 4px; background: rgba(255, 51, 102, 0.22); border: 1px solid var(--neon-red); display: inline-block;"></span>Missed</span>
+                        <span style="display: inline-flex; align-items: center; gap: 5px;"><span style="width: 12px; height: 12px; border-radius: 4px; border: 2px solid var(--neon-purple); display: inline-block;"></span>Today</span>
+                    </div>
                 </div>
-                <div class="calendar-scroll-container">
+                <div class="calendar-scroll-container" id="calendarScrollContainer">
                     <div class="calendar-grid" id="calendarGrid"></div>
                 </div>
             </section>
@@ -1660,7 +1696,7 @@
 
     <div class="modal-overlay" id="installHelp" onclick="if (event.target === this) closeInstallHelp()">
         <div class="modal-content" style="text-align: center;">
-            <h2 style="margin-bottom: 12px;">Install Nexus</h2>
+            <h2 style="margin-bottom: 12px;">Install GoalForce</h2>
             <div id="installHelpBody" style="font-size: 14px; line-height: 1.8; color: var(--text-muted); text-align: left; margin-bottom: 20px;"></div>
             <button class="btn-primary" style="width: 100%; padding: 12px;" onclick="closeInstallHelp()">Got it</button>
         </div>
@@ -1722,7 +1758,7 @@
 
     <div class="modal-overlay" id="welcomeModal">
         <div class="modal-content" style="text-align: center;">
-            <h2 style="margin-bottom: 8px;">Welcome to Nexus</h2>
+            <h2 style="margin-bottom: 8px;">Welcome to GoalForce</h2>
             <div style="font-size: 14px; line-height: 1.7; color: var(--text-muted); text-align: left; margin: 14px 0;">
                 1. Tick your habits every day. Each one gives <b>5 XP</b>.<br>
                 2. Finish levels to unlock new <b>themes</b> and <b>badges</b>.<br>
@@ -2418,8 +2454,8 @@
             const r = prefs.reminder, n = new Date(), t = getTodayStr();
             if (!r.on || r.last === t || r.time !== `${pad2(n.getHours())}:${pad2(n.getMinutes())}`) return;
             r.last = t; savePrefs();
-            notify({ type: 'info', title: 'Time to build your habits!', message: 'Open Nexus and tick what you have done.', duration: 8000 }); playSound('complete');
-            if ('Notification' in window && Notification.permission === 'granted') { try { new Notification('Nexus', { body: 'Time to tick your habits!' }); } catch (e) {} }
+            notify({ type: 'info', title: 'Time to build your habits!', message: 'Open GoalForce and tick what you have done.', duration: 8000 }); playSound('complete');
+            if ('Notification' in window && Notification.permission === 'granted') { try { new Notification('GoalForce', { body: 'Time to tick your habits!' }); } catch (e) {} }
         }
         setInterval(checkReminder, 20000);
         function setPref(k, v) { prefs[k] = v; savePrefs(); applyPrefs(); }
@@ -2434,11 +2470,11 @@
         async function unlockApp() { const v = $('lockInput').value.trim(); if (await hashPin(v) === prefs.pinHash) { $('lockOverlay').classList.remove('show'); $('lockInput').value = ''; } else { notify({ type: 'error', title: 'Wrong PIN' }); $('lockInput').value = ''; } }
 
         function downloadFile(name, text, type) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
-        function exportJSON() { downloadFile(`nexus-backup-${getTodayStr()}.json`, JSON.stringify(appState, null, 2), 'application/json'); }
+        function exportJSON() { downloadFile(`goalforce-backup-${getTodayStr()}.json`, JSON.stringify(appState, null, 2), 'application/json'); }
         function exportCSV() {
             const rows = ['date,habit,done'];
             appState.habits.forEach(h => Object.keys(h.history).sort().forEach(d => rows.push(`${d},"${h.name.replace(/"/g, '""')}",${h.history[d] ? 1 : 0}`)));
-            downloadFile(`nexus-habits-${getTodayStr()}.csv`, rows.join('\n'), 'text/csv');
+            downloadFile(`goalforce-habits-${getTodayStr()}.csv`, rows.join('\n'), 'text/csv');
         }
         function importJSON(input) {
             const f = input.files[0]; if (!f) return;
@@ -2471,7 +2507,7 @@
             const sug = usual.length ? `Suggested time from your habits: <b>${fm(Math.round(usual.reduce((a, b) => a + b, 0) / usual.length))}</b>` : 'Tick habits for a few days to get a suggested time.';
             $('prefsPanel').innerHTML = `<h2 class="panel-title" style="margin-bottom: 14px;">Personalize</h2>
                 <div class="setting-title">Weekly rest days</div><div class="setting-desc" style="margin-bottom: 10px;">Rest days are not counted as missed and keep your streak alive.</div><div class="weekday-row" style="margin-bottom: 20px;">${rest}</div>
-                ${line('Daily reminder', `${sug}<br>Works while Nexus is open in a tab.`, `<div style="display: flex; gap: 8px; align-items: center;"><input type="time" value="${prefs.reminder.time}" onchange="setReminder(prefs.reminder.on, this.value)" style="padding: 8px; border-radius: 10px; background: rgba(var(--tint), 0.06); border: 1px solid var(--border-color); color: var(--text-main);">${sw(prefs.reminder.on, 'setReminder(this.checked)')}</div>`)}
+                ${line('Daily reminder', `${sug}<br>Works while GoalForce is open in a tab.`, `<div style="display: flex; gap: 8px; align-items: center;"><input type="time" value="${prefs.reminder.time}" onchange="setReminder(prefs.reminder.on, this.value)" style="padding: 8px; border-radius: 10px; background: rgba(var(--tint), 0.06); border: 1px solid var(--border-color); color: var(--text-main);">${sw(prefs.reminder.on, 'setReminder(this.checked)')}</div>`)}
                 <div class="setting-title" style="margin-bottom: 8px;">Accessibility</div>
                 <div class="sound-row"><div class="sound-row-title">Text size</div><select onchange="setPref('size', Number(this.value))">${[75, 90, 100, 115, 130].map(v => `<option value="${v}" ${prefs.size === v ? 'selected' : ''}>${v}%</option>`).join('')}</select></div>
                 <div class="sound-row"><div class="sound-row-title">Font</div><select onchange="setPref('font', this.value)">${[['outfit', 'Outfit (default)'], ['easy', 'Easy to read (Verdana)'], ['serif', 'Serif (Georgia)']].map(([v, l]) => `<option value="${v}" ${prefs.font === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
@@ -2534,7 +2570,7 @@
             } catch (e) { notify({ type: 'error', title: 'Version history could not be read' }); }
         }
         function saveVersionNow() { notify(saveVersion('Manual') ? { type: 'success', title: 'Version saved' } : { type: 'error', title: 'Could not save version', message: 'Browser storage is unavailable or full.' }); renderExtraPanel(); }
-        function deleteData(kind) { confirmDo(kind === 'all' ? 'Delete ALL Nexus data on this device? This cannot be undone.' : 'Delete this data?', () => deleteDataNow(kind), 'Delete'); }
+        function deleteData(kind) { confirmDo(kind === 'all' ? 'Delete ALL GoalForce data on this device? This cannot be undone.' : 'Delete this data?', () => deleteDataNow(kind), 'Delete'); }
         function deleteDataNow(kind) {
             if (kind === 'all') { Object.keys(localStorage).filter(k => k.startsWith('quantum')).forEach(k => localStorage.removeItem(k)); location.reload(); return; }
             if (kind === 'notes') appState.journal = {};
@@ -2570,7 +2606,7 @@
         function addFeedback() {
             const tx = $('fbText').value.trim(); if (!tx) return;
             appState.feedback.unshift({ date: getTodayStr(), type: $('fbType').value, text: tx });
-            if (FEEDBACK_EMAIL) window.location.href = `mailto:${FEEDBACK_EMAIL}?subject=${encodeURIComponent('Nexus ' + $('fbType').value)}&body=${encodeURIComponent(tx)}`;
+            if (FEEDBACK_EMAIL) window.location.href = `mailto:${FEEDBACK_EMAIL}?subject=${encodeURIComponent('GoalForce ' + $('fbType').value)}&body=${encodeURIComponent(tx)}`;
             saveData(); renderExtraPanel(); notify({ type: 'success', title: 'Thanks for the feedback!' });
         }
         function renderExtraPanel() {
@@ -2588,7 +2624,7 @@
                 ${vers.map((v, i) => gRow(`<b>${new Date(v.at).toLocaleString()}</b> <span class="setting-desc">${v.label}</span>`, null).replace('</div></div>', `</div><button class="btn-primary" onclick="restoreVersion(${i})">Restore</button></div>`)).join('') || gEmpty('No versions yet.')}
                 <button class="btn-primary" style="margin: 6px 0 22px;" onclick="saveVersionNow()">Save a version now</button>
                 <h2 class="panel-title" style="margin-bottom: 8px;">Demo Mode</h2>
-                <div class="setting-desc" style="margin-bottom: 10px;">Explore Nexus with sample data. Your own data is stored safely and comes back when you exit.</div>
+                <div class="setting-desc" style="margin-bottom: 10px;">Explore GoalForce with sample data. Your own data is stored safely and comes back when you exit.</div>
                 <button class="btn-primary" style="margin-bottom: 22px;" onclick="${inDemo ? 'exitDemo()' : 'startDemo()'}">${inDemo ? 'Exit demo mode' : 'Try demo data'}</button>
                 <h2 class="panel-title" style="margin-bottom: 8px;">Feedback & Feature Requests</h2>
                 <div class="setting-desc" style="margin-bottom: 10px;">${FEEDBACK_EMAIL ? 'Saved here and sent by email.' : 'Saved on this device. (The app owner can add an email address in the code to receive them.)'}</div>
@@ -3177,33 +3213,67 @@
 
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
-            grid.innerHTML = '';
+            if (!grid) return;
 
             const today = new Date();
             const year = today.getFullYear();
             const month = today.getMonth();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const todayStr = getTodayStr();
+            const yesterdayStr = dateAdd(todayStr, -1);
+            const dowShort = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
-            grid.innerHTML += `<div class="cal-header-cell" style="text-align: left;">Habit Name</div>`;
+            // Dynamically set exact column count for 28/29/30/31 day months so rows never shift!
+            grid.style.setProperty('--cal-days', daysInMonth);
+
+            const titleEl = document.getElementById('calMonthTitle');
+            if (titleEl) {
+                const monthLabel = today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                titleEl.textContent = `Monthly Tracker — ${monthLabel}`;
+            }
+
+            if (!appState.habits || appState.habits.length === 0) {
+                grid.style.gridTemplateColumns = '1fr';
+                grid.innerHTML = '<div class="task-empty" style="padding: 18px 0;">No habits added yet. Open "My Habits" to add your first habit.</div>';
+                return;
+            }
+            grid.style.removeProperty('grid-template-columns');
+
+            let html = `<div class="cal-header-cell cal-sticky-head">Habit Name</div>`;
             for (let i = 1; i <= daysInMonth; i++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
                 const isToday = dateStr === todayStr;
-                grid.innerHTML += `<div class="cal-header-cell ${isToday ? 'today' : ''}">${i}</div>`;
+                const dow = new Date(year, month, i).getDay();
+                html += `<div class="cal-header-cell ${isToday ? 'today' : ''}" data-cal-day="${i}"><span class="cal-dow">${dowShort[dow]}</span><span>${i}</span></div>`;
             }
 
             appState.habits.forEach(habit => {
-                grid.innerHTML += `<div class="cal-habit-name" title="${escapeHtml(habit.name)}">${escapeHtml(habit.name)}</div>`;
+                html += `<div class="cal-habit-name" title="${escapeHtml(habit.name)}">${escapeHtml(habit.name)}</div>`;
                 for (let i = 1; i <= daysInMonth; i++) {
                     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
                     const isCompleted = habit.history[dateStr] === true;
                     const isToday = dateStr === todayStr;
                     const isRest = !isCompleted && (isRestDay(dateStr) || !isScheduled(habit, dateStr));
-                    const isMissed = !isCompleted && !isRest && dateStr <= todayStr;
-                    const canEdit = dateStr === dateAdd(todayStr, -1) && isScheduled(habit, dateStr);
-                    grid.innerHTML += `<div class="cal-cell ${isCompleted ? 'completed' : ''} ${isMissed ? 'missed' : ''} ${isRest ? 'rest' : ''} ${isToday ? 'today' : ''} ${canEdit ? 'editable' : ''}" ${canEdit ? `onclick="toggleCalendarCell('${habit.id}', '${dateStr}')" title="Tap to fix yesterday"` : ''}></div>`;
+                    const isMissed = !isCompleted && !isRest && dateStr < todayStr;
+                    const canEdit = (dateStr === todayStr || dateStr === yesterdayStr) && isScheduled(habit, dateStr);
+                    const tip = isToday ? 'Tap to toggle today' : (dateStr === yesterdayStr ? 'Tap to fix yesterday' : dateStr);
+                    html += `<div class="cal-cell ${isCompleted ? 'completed' : ''} ${isMissed ? 'missed' : ''} ${isRest ? 'rest' : ''} ${isToday ? 'today' : ''} ${canEdit ? 'editable' : ''}" ${canEdit ? `onclick="toggleCalendarCell('${habit.id}', '${dateStr}')" title="${tip}"` : `title="${tip}"`}></div>`;
                 }
             });
+
+            grid.innerHTML = html;
+
+            // Auto-scroll once on initial render so today's column is visible
+            if (!renderCalendar.scrolledOnce) {
+                renderCalendar.scrolledOnce = true;
+                const sc = document.getElementById('calendarScrollContainer');
+                const todayCell = grid.querySelector('.cal-header-cell.today');
+                if (sc && todayCell && today.getDate() > 7) {
+                    setTimeout(() => {
+                        sc.scrollLeft = Math.max(0, todayCell.offsetLeft - 220);
+                    }, 60);
+                }
+            }
         }
 
         // --- Render Custom SVG Analytics Chart ---
@@ -4259,20 +4329,20 @@
         // ---- Install as app (PWA) ----
         let deferredInstall = null;
         window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; renderInstallPanel(); });
-        window.addEventListener('appinstalled', () => { deferredInstall = null; renderInstallPanel(); notify({ type: 'success', title: 'Nexus installed!' }); });
+        window.addEventListener('appinstalled', () => { deferredInstall = null; renderInstallPanel(); notify({ type: 'success', title: 'GoalForce installed!' }); });
         function isInstalled() { return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; }
         function renderInstallPanel() {
             const box = $('installPanel');
             if (!box) return;
             const done = isInstalled();
-            box.innerHTML = `<div class="setting-line" style="margin-bottom: 0;"><div><h2 class="panel-title">Download App</h2><div class="setting-desc">${done ? 'Nexus is installed on this device.' : 'Install Nexus on your home screen. It opens full screen and works offline.'}</div></div>${done ? '' : '<button class="btn-primary" onclick="downloadApp()">Download App</button>'}</div>`;
+            box.innerHTML = `<div class="setting-line" style="margin-bottom: 0;"><div><h2 class="panel-title">Download App</h2><div class="setting-desc">${done ? 'GoalForce is installed on this device.' : 'Install GoalForce on your home screen. It opens full screen and works offline.'}</div></div>${done ? '' : '<button class="btn-primary" onclick="downloadApp()">Download App</button>'}</div>`;
         }
         function downloadApp() {
-            if (isInstalled()) return notify({ type: 'info', title: 'Nexus is already installed' });
+            if (isInstalled()) return notify({ type: 'info', title: 'GoalForce is already installed' });
             if (deferredInstall) return installApp();
             const ios = /iphone|ipad|ipod/i.test(navigator.userAgent), web = /^https?:$/.test(location.protocol);
             $('installHelpBody').innerHTML = !web
-                ? 'To install Nexus, open it from its website link (https://...). Installing does not work from a file saved on your device.'
+                ? 'To install GoalForce, open it from its website link (https://...). Installing does not work from a file saved on your device.'
                 : ios
                     ? '1. Open this page in <b>Safari</b>.<br>2. Tap the <b>Share</b> button.<br>3. Choose <b>Add to Home Screen</b>.'
                     : '1. Open this page in <b>Chrome</b>.<br>2. Tap the menu (three dots).<br>3. Tap <b>Install app</b> or <b>Add to Home screen</b>.';
@@ -4543,10 +4613,10 @@ html[data-ui="legend"] :is(.panel,.stat-card,.calendar-section){clip-path:polygo
 <script>
 /* ================= CLOUD ACCOUNT (Phase 3) =================
    Login + online backup + sync, using the Supabase REST API directly (no extra library).
-   Put your Supabase URL and key in config.js (see SETUP_GUIDE.md). While they are empty, Nexus works
+   Put your Supabase URL and key in config.js (see SETUP_GUIDE.md). While they are empty, GoalForce works
    exactly as before (data only on this device) and all cloud screens stay hidden. */
-const CLOUD = Object.assign({ url: '', key: '' }, window.NEXUS_CONFIG || {}); // filled in config.js
-const CLOUD_CFG_STORE = (window.NEXUS_CONFIG && /^https:\/\//.test(window.NEXUS_CONFIG.storeUrl || '')) ? window.NEXUS_CONFIG.storeUrl : '';
+const CLOUD = Object.assign({ url: '', key: '' }, window.GOALFORCE_CONFIG || {}); // filled in config.js
+const CLOUD_CFG_STORE = (window.GOALFORCE_CONFIG && /^https:\/\//.test(window.GOALFORCE_CONFIG.storeUrl || '')) ? window.GOALFORCE_CONFIG.storeUrl : '';
 const CLOUD_ON = /^(https:\/\/|http:\/\/localhost)/.test(CLOUD.url) && CLOUD.key.length > 20;
 const cloud = { session: null, status: 'off', note: '', busy: false, timer: null, pending: null, ready: false, ver: 0, recovery: null, lastOk: 0 };
 let authMode = 'login', authBusy = false;
@@ -4815,7 +4885,7 @@ async function cloudLogout(silent) {
 }
 function cloudLogoutErase() {
     if (getMeta().dirty) return notify({ type: 'error', title: 'Not backed up yet', message: 'Tap "Sync now" first so nothing is lost.' });
-    confirmDo('Log out and erase all Nexus data from this device? Your data stays safe in your account.', async () => { await cloudLogout(true); deleteDataNow('all'); }, 'Erase');
+    confirmDo('Log out and erase all GoalForce data from this device? Your data stays safe in your account.', async () => { await cloudLogout(true); deleteDataNow('all'); }, 'Erase');
 }
 function cloudDeleteData() {
     confirmDo('Delete your backup from the cloud? Data on this device is kept, and you will be logged out.', async () => {
@@ -4876,7 +4946,7 @@ function renderAccountPanel() {
     const titles = { login: 'Log in', signup: 'Create account', forgot: 'Reset password' };
     const tab = (m, l) => `<button class="tab-btn ${authMode === m ? 'active' : ''}" onclick="setAuthMode('${m}')">${l}</button>`;
     box.innerHTML = `<h2 class="panel-title" style="margin-bottom: 4px;">Account & Cloud Backup</h2>
-        <div class="setting-desc" style="margin-bottom: 14px;">Log in to back up your data online and use Nexus on more than one device. Nexus still works without an account.</div>
+        <div class="setting-desc" style="margin-bottom: 14px;">Log in to back up your data online and use GoalForce on more than one device. GoalForce still works without an account.</div>
         <div class="task-tabs">${tab('login', 'Log in')}${tab('signup', 'Sign up')}</div>
         <div class="input-group"><label>Email</label><input type="email" id="authEmail" autocomplete="email" inputmode="email" placeholder="you@example.com" onkeydown="if (event.key === 'Enter') authSubmit()"></div>
         ${authMode === 'forgot' ? '' : `<div class="input-group"><label>Password${authMode === 'signup' ? ' (8+ characters, letters and numbers)' : ''}</label><input type="password" id="authPass" autocomplete="${authMode === 'signup' ? 'new-password' : 'current-password'}" onkeydown="if (event.key === 'Enter') authSubmit()"></div>
@@ -4925,7 +4995,7 @@ function planHtml() {
 }
 function openUpgrade() {
     const s = cloud.settings || {}, mail = typeof s.support_email === 'string' ? s.support_email : '';
-    $('upgradeText').textContent = (typeof s.upgrade_text === 'string' && s.upgrade_text) || 'Premium gives you extra themes and removes ads. Premium purchases will be available in the Nexus Android app on Google Play.';
+    $('upgradeText').textContent = (typeof s.upgrade_text === 'string' && s.upgrade_text) || 'Premium gives you extra themes and removes ads. Premium purchases will be available in the GoalForce Android app on Google Play.';
     $('upgradeMail').innerHTML = mail ? `Questions? Write to <b>${esc(mail)}</b>` : '';
     $('upgradeModal').classList.add('show');
 }
@@ -4952,7 +5022,7 @@ function renderBoot() {
     const box = $('bootBanners'); if (!box) return;
     let h = '';
     const m = cloud.settings && cloud.settings.maintenance;
-    if (m && m.on) h += `<div class="bd-banner warn"><div style="flex: 1;"><div class="bd-banner-title">Maintenance</div><div class="bd-banner-text">${esc(m.message || 'Nexus is being updated. Cloud backup may be slow for a while.')}</div></div></div>`;
+    if (m && m.on) h += `<div class="bd-banner warn"><div style="flex: 1;"><div class="bd-banner-title">Maintenance</div><div class="bd-banner-text">${esc(m.message || 'GoalForce is being updated. Cloud backup may be slow for a while.')}</div></div></div>`;
     const seen = cloudLS.get('quantumAnnSeen', []);
     (cloud.announcements || []).filter(a => !seen.includes(a.id)).slice(0, 3).forEach(a => {
         h += `<div class="bd-banner"><div style="flex: 1;"><div class="bd-banner-title">${esc(a.title)}</div>${a.body ? `<div class="bd-banner-text">${esc(a.body)}</div>` : ''}</div><button class="btn-primary" onclick="dismissAnn('${esc(String(a.id)).replace(/[^\w-]/g, '')}')">Got it</button></div>`;
@@ -4960,7 +5030,7 @@ function renderBoot() {
     // ask for a store rating once, after the person has used the app on 7 different days
     const rated = cloudLS.get('quantumRated', 0);
     if (CLOUD_CFG_STORE && rated !== 1 && Date.now() > (Number(rated) || 0) && getActiveDates().size >= 7)
-        h += `<div class="bd-banner good"><div style="flex: 1;"><div class="bd-banner-title">Enjoying Nexus?</div><div class="bd-banner-text">A quick rating helps a lot.</div></div><button class="btn-primary" onclick="rateNow()">Rate</button><button class="btn-primary" style="background: transparent; border-color: var(--text-muted); color: var(--text-muted);" onclick="rateLater()">Later</button></div>`;
+        h += `<div class="bd-banner good"><div style="flex: 1;"><div class="bd-banner-title">Enjoying GoalForce?</div><div class="bd-banner-text">A quick rating helps a lot.</div></div><button class="btn-primary" onclick="rateNow()">Rate</button><button class="btn-primary" style="background: transparent; border-color: var(--text-muted); color: var(--text-muted);" onclick="rateLater()">Later</button></div>`;
     box.innerHTML = h;
     if (typeof window.nativeAdsRefresh === 'function') window.nativeAdsRefresh();
 }
@@ -5091,7 +5161,7 @@ function setGateMode(m) {
     document.getElementById('gatePassGroup').style.display = m === 'forgot' ? 'none' : 'block';
     document.getElementById('gateShowPassRow').style.display = m === 'forgot' ? 'none' : 'flex';
     document.getElementById('gatePassLabel').textContent = m === 'signup' ? 'Password (8+ characters, letters & numbers)' : 'Password';
-    const titles = { login: 'Log In to Nexus', signup: 'Create Account & Enter', forgot: 'Send Password Reset' };
+    const titles = { login: 'Log In to GoalForce', signup: 'Create Account & Enter', forgot: 'Send Password Reset' };
     document.getElementById('gateSubmitBtn').textContent = titles[m] || 'Log In';
 }
 
@@ -5141,7 +5211,7 @@ async function submitGateAuth() {
             document.getElementById('gatePass').value = '';
             enforceAuthGate();
             renderAccountPanel();
-            notify({ type: 'success', title: 'Welcome to Nexus!', message: `Logged in as ${email}` });
+            notify({ type: 'success', title: 'Welcome to GoalForce!', message: `Logged in as ${email}` });
             if (CLOUD_ON && cloud.session) { await cloudBootstrap(); await cloudSync(true); }
             return;
         }
@@ -5645,7 +5715,7 @@ function checkSkincareAndTodoReminders() {
             notify({ type: 'info', title: `${s.label} Reminder`, message: `Time for your ${s.short.toLowerCase()} skincare steps!`, duration: 8000 });
             playSound('complete');
             if ('Notification' in window && Notification.permission === 'granted') {
-                try { new Notification('Nexus Skincare', { body: `Time for your ${s.label}!` }); } catch (e) {}
+                try { new Notification('GoalForce Skincare', { body: `Time for your ${s.label}!` }); } catch (e) {}
             }
         }
     });
@@ -5657,7 +5727,7 @@ function checkSkincareAndTodoReminders() {
             notify({ type: 'task', title: 'To-Do Reminder', message: td.title, duration: 8000 });
             playSound('complete');
             if ('Notification' in window && Notification.permission === 'granted') {
-                try { new Notification('Nexus To-Do', { body: td.title }); } catch (e) {}
+                try { new Notification('GoalForce To-Do', { body: td.title }); } catch (e) {}
             }
         }
     });

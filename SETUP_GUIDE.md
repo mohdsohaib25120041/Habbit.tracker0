@@ -1,4 +1,4 @@
-# Nexus: poora setup guide (Hinglish)
+# GoalForce: poora setup guide (Hinglish)
 
 Ye guide aapko zero se live website, admin panel aur Play Store tak le jati hai.
 Har step ke aage likha hai ki kaun karega: **[aap]** ya **[ho chuka]**.
@@ -29,18 +29,18 @@ Har step ke aage likha hai ki kaun karega: **[aap]** ya **[ho chuka]**.
 ## 1. Supabase banao (database + login)  **[aap]**  ~15 min
 
 1. https://supabase.com par free account banao -> **New project**.
-   Name `nexus`, ek strong database password (save kar lo), region = aapke users ke paas.
+   Name `goalforce`, ek strong database password (save kar lo), region = aapke users ke paas.
 2. Left menu **SQL Editor** -> **New query**.
    - `1_database_setup.sql` ka poora content paste karo -> **Run** (Success aana chahiye).
    - Phir naya query kholo, `2_admin_setup.sql` paste karo -> **Run**.
 3. **Authentication** me:
    - Providers -> **Email** ON, **Confirm email** ON.
    - Password minimum length = **8**.
-   - **URL Configuration**: *Site URL* = aapka website link (step 2 ke baad milega, jaise `https://username.github.io/nexus/`). *Redirect URLs* me wahi link add karo.
+   - **URL Configuration**: *Site URL* = aapka website link (step 2 ke baad milega, jaise `https://username.github.io/goalforce/`). *Redirect URLs* me wahi link add karo.
 4. **Project Settings -> API** se **Project URL** aur **anon / publishable key** copy karo.
 5. `config.js` kholo aur bharo:
    ```js
-   window.NEXUS_CONFIG = {
+   window.GOALFORCE_CONFIG = {
      url: 'https://xxxx.supabase.co',
      key: 'eyJ...ya sb_publishable_...'
    };
@@ -52,15 +52,15 @@ Har step ke aage likha hai ki kaun karega: **[aap]** ya **[ho chuka]**.
 
 ## 2. Website live karo (GitHub Pages)  **[aap]**  ~10 min
 
-1. GitHub par nayi repository banao (Public), naam jaise `nexus`.
+1. GitHub par nayi repository banao (Public), naam jaise `goalforce`.
 2. ZIP extract karo. **Add file -> Upload files** me saari files upload karo
    (`.nojekyll` aur `.well-known` folder bhi; agar dikhe nahi to unhe alag se upload karo).
 3. **Settings -> Pages -> Source: Deploy from a branch -> main -> /(root) -> Save**.
-4. 1-2 minute baad link: `https://<username>.github.io/nexus/`.
+4. 1-2 minute baad link: `https://<username>.github.io/goalforce/`.
 5. Is link ko Supabase ke **Site URL / Redirect URLs** (step 1.3) me daalo.
-6. Admin panel: `https://<username>.github.io/nexus/admin.html`
+6. Admin panel: `https://<username>.github.io/goalforce/admin.html`
 
-**Update karte waqt:** file badlo, upload karo, aur `sw.js` me `nexus-v3` ko `nexus-v4` (v5...) kar do, warna phone par purana version dikhega.
+**Update karte waqt:** file badlo, upload karo, aur `sw.js` me `goalforce-v3` ko `goalforce-v4` (v5...) kar do, warna phone par purana version dikhega.
 
 ---
 
@@ -134,9 +134,9 @@ Do rasta hain:
 
 **Rasta A: PWABuilder / Bubblewrap (aasan, bina ads ke)**
 1. https://www.pwabuilder.com par apna website link daalo -> Android package banao (signing key save karke rakhna!).
-2. Package name jaise `com.yourname.nexus`. `.well-known/assetlinks.json` me package name aur SHA-256 fingerprint daalo.
+2. Package name jaise `com.yourname.goalforce`. `.well-known/assetlinks.json` me package name aur SHA-256 fingerprint daalo.
 3. **Zaroori:** `assetlinks.json` domain ke **root** par hona chahiye (`https://domain.com/.well-known/assetlinks.json`).
-   `username.github.io/nexus/` (project page) par ye kaam nahi karta. Iske liye ya to `username.github.io` naam ki repo banao
+   `username.github.io/goalforce/` (project page) par ye kaam nahi karta. Iske liye ya to `username.github.io` naam ki repo banao
    ya apna custom domain jodo (GitHub Pages me free).
 4. Is rasta me **AdMob nahi chalta** aur Play Billing mushkil hai.
 

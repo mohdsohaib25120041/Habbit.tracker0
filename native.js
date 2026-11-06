@@ -1,8 +1,8 @@
 /* Android app only (Capacitor): shows an AdMob banner to FREE users.
    On the website this file does nothing. Needs the plugin @capacitor-community/admob and
-   NEXUS_CONFIG.admobBanner (your banner ad unit id) in config.js. */
+   GOALFORCE_CONFIG.admobBanner (your banner ad unit id) in config.js. */
 (function () {
-    const C = window.Capacitor, cfg = window.NEXUS_CONFIG || {};
+    const C = window.Capacitor, cfg = window.GOALFORCE_CONFIG || {};
     if (!C || typeof C.isNativePlatform !== 'function' || !C.isNativePlatform()) return;
     const A = C.Plugins && C.Plugins.AdMob;
     if (!A || !cfg.admobBanner) return;

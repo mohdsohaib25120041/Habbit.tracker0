@@ -3,7 +3,7 @@
 Ye English me hai. Apni marzi se badlo. Hindi listing bhi daal sakte ho (Play Console me "Add translation").
 
 ## Basics
-- **App name** (max 30): `Nexus: Habit Tracker`
+- **App name** (max 30): `GoalForce: Habit Tracker`
 - **Short description** (max 80): `Build habits with streaks, levels, badges, tasks and a water tracker.`
 - **Category:** Health & Fitness (ya Productivity)
 - **Tags:** habit tracker, productivity, self improvement
@@ -12,7 +12,7 @@ Ye English me hai. Apni marzi se badlo. Hindi listing bhi daal sakte ho (Play Co
 - **Account deletion URL:** `https://[aapki site]/privacy.html#delete`
 
 ## Full description (max 4000)
-Turn your daily routine into a game. Nexus is a habit tracker that rewards you for showing up.
+Turn your daily routine into a game. GoalForce is a habit tracker that rewards you for showing up.
 
 **What you get**
 - Daily habits with streaks, weekly schedules and "do it 8 times a day" goals
@@ -22,14 +22,14 @@ Turn your daily routine into a game. Nexus is a habit tracker that rewards you f
 - Notes to write about your day and what you missed
 - 11 themes, from Night to Aurora
 - Works offline. Your data stays on your phone
-- Optional free account: back up your data and use Nexus on more than one device
+- Optional free account: back up your data and use GoalForce on more than one device
 - Premium: extra themes and no ads
 
 **Your data, your choice**
-You can use Nexus without an account. If you create one, your habits are backed up securely and you can delete your account and data any time inside the app.
+You can use GoalForce without an account. If you create one, your habits are backed up securely and you can delete your account and data any time inside the app.
 
 ## What's new (first release)
-First release of Nexus. Build habits, earn XP, unlock badges.
+First release of GoalForce. Build habits, earn XP, unlock badges.
 
 ## Graphics (is folder `store/` me ready hain)
 - App icon 512x512: `store/app_icon_512.png`
