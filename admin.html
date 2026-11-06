@@ -102,7 +102,7 @@ function msgOf(status, data) {
   if (raw.includes('not confirmed')) return 'Please confirm your email first.';
   if (status === 429) return 'Too many tries. Wait a minute.';
   if (raw.includes('not allowed') || (data && data.code === '42501')) return 'You are not allowed to do this.';
-  if (status === 404 || raw.includes('could not find the function')) return 'The admin database part is not installed yet. Run supabase_phase4.sql.';
+  if (status === 404 || raw.includes('could not find the function')) return 'The admin database part is not installed yet. Run 2_admin_setup.sql (or RUN_THIS_SQL.sql).';
   if (status === 401) return 'Your login expired. Please log in again.';
   if (status >= 500) return 'Server problem. Try again later.';
   return (data && data.message) ? String(data.message).slice(0, 140) : 'Something went wrong.';

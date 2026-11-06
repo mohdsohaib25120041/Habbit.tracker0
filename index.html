@@ -874,9 +874,159 @@
             .habit-row { padding: 12px; }
             .modal-content { padding: 22px; }
         }
+
+        /* --- MANDATORY LOGIN GATE --- */
+        body.auth-locked .sidebar,
+        body.auth-locked .main-content,
+        body.auth-locked .mobile-nav,
+        body.auth-locked #moreSheet,
+        body.auth-locked #moreBackdrop,
+        body.auth-locked #welcomeModal,
+        body.auth-locked #searchOverlay {
+            display: none !important;
+            pointer-events: none !important;
+        }
+        .auth-gate-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 8500;
+            background: var(--bg-base);
+            background-image: radial-gradient(circle at 18% 35%, rgba(0, 240, 255, 0.10), transparent 32%),
+                              radial-gradient(circle at 82% 70%, rgba(176, 38, 255, 0.10), transparent 32%);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        body.auth-locked .auth-gate-overlay {
+            display: flex !important;
+        }
+        .auth-gate-card {
+            width: 100%;
+            max-width: 430px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 32px 28px;
+            backdrop-filter: var(--glass-blur);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 25px rgba(0, 240, 255, 0.08);
+            animation: fadeIn 0.35s ease;
+        }
+        .auth-gate-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .auth-gate-logo .icon {
+            width: 30px;
+            height: 30px;
+            color: var(--neon-cyan);
+            filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.6));
+        }
+        .auth-gate-logo span { color: var(--neon-cyan); }
+        .auth-gate-sub {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 22px;
+            line-height: 1.5;
+        }
+
+        /* --- SKINCARE & TO-DO LIST --- */
+        .skin-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 25px;
+            align-items: start;
+        }
+        .skin-slot-card {
+            background: rgba(var(--tint), 0.025);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 18px;
+            margin-bottom: 16px;
+        }
+        .skin-slot-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .skin-slot-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .skin-rem-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .skin-rem-box input[type="time"] {
+            padding: 5px 8px;
+            border-radius: 8px;
+            background: rgba(var(--tint), 0.06);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-size: 12px;
+            outline: none;
+        }
+        .skin-chip-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+        .skin-chip {
+            padding: 6px 13px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            background: rgba(var(--tint), 0.04);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .skin-chip:hover {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+        }
+        .skin-chip.active {
+            background: rgba(0, 240, 255, 0.14);
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
+        }
+        .skin-chip.concern.active {
+            background: rgba(176, 38, 255, 0.15);
+            border-color: var(--neon-purple);
+            color: var(--neon-purple);
+            box-shadow: 0 0 12px rgba(176, 38, 255, 0.2);
+        }
+        .skin-form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+        @media (max-width: 1024px) {
+            .skin-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
-<body>
+<body class="auth-locked">
     <noscript><div style="padding:40px;text-align:center;font-family:system-ui,sans-serif;">Nexus needs JavaScript. Please turn it on in your browser settings.</div></noscript>
     <div id="bootLoader" style="position:fixed;inset:0;z-index:9000;background:var(--bg-base);color:var(--text-main);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:system-ui,sans-serif;">
         <div style="width:42px;height:42px;border-radius:50%;border:4px solid rgba(128,128,128,.25);border-top-color:var(--neon-cyan);animation:bootSpin .8s linear infinite;"></div>
@@ -886,6 +1036,46 @@
     <script>setTimeout(function(){var l=document.getElementById('bootLoader');if(l){l.innerHTML='<div style="text-align:center;padding:24px;">Nexus could not start.<br>Please refresh the page. Your data is safe on this device.</div>';}},8000);</script>
 
     <div class="notify-stack" id="notifyStack"></div>
+
+    <!-- MANDATORY LOGIN PAGE OVERLAY -->
+    <div class="auth-gate-overlay" id="authGateOverlay">
+        <div class="auth-gate-card">
+            <div class="auth-gate-logo">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M13 2L4.5 13h6L10 22l8.5-11h-6L13 2z"/></svg>
+                Nexus<span>.</span>
+            </div>
+            <div class="auth-gate-sub">Log in or create an account to access your Habit Tracker, Skincare Routine, To-Do List, and Analytics.</div>
+
+            <div class="task-tabs" style="justify-content: center; margin-bottom: 18px;">
+                <button type="button" class="tab-btn active" id="gateTabLogin" onclick="setGateMode('login')">Log In</button>
+                <button type="button" class="tab-btn" id="gateTabSignup" onclick="setGateMode('signup')">Sign Up</button>
+                <button type="button" class="tab-btn" id="gateTabForgot" onclick="setGateMode('forgot')">Reset</button>
+            </div>
+
+            <div class="input-group" id="gateNameGroup" style="display: none;">
+                <label for="gateName">Your Name</label>
+                <input type="text" id="gateName" autocomplete="name" placeholder="e.g. Sohaib">
+            </div>
+
+            <div class="input-group">
+                <label for="gateEmail">Email Address</label>
+                <input type="email" id="gateEmail" autocomplete="email" inputmode="email" placeholder="you@example.com" onkeydown="if (event.key === 'Enter') submitGateAuth()">
+            </div>
+
+            <div class="input-group" id="gatePassGroup">
+                <label for="gatePass" id="gatePassLabel">Password</label>
+                <input type="password" id="gatePass" autocomplete="current-password" placeholder="Enter your password" onkeydown="if (event.key === 'Enter') submitGateAuth()">
+            </div>
+
+            <label class="setting-desc" id="gateShowPassRow" style="display: flex; gap: 8px; align-items: center; margin-bottom: 16px; cursor: pointer;">
+                <input type="checkbox" onchange="document.getElementById('gatePass').type = this.checked ? 'text' : 'password'"> Show password
+            </label>
+
+            <button type="button" class="btn-primary" id="gateSubmitBtn" style="width: 100%; padding: 12px; font-size: 15px;" onclick="submitGateAuth()">Log In to Nexus</button>
+
+            <div id="gateMsg" class="setting-desc" style="margin-top: 12px; min-height: 20px; text-align: center; font-weight: 500;" aria-live="polite"></div>
+        </div>
+    </div>
 
     <aside class="sidebar">
         <div class="logo">
@@ -905,6 +1095,10 @@
                 <svg class="icon" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                 Tasks
             </a>
+            <a href="#" class="nav-item" onclick="changePage('skincare', this); return false;">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"/></svg>
+                Skincare &amp; To-Do
+            </a>
             <a href="#" class="nav-item" onclick="changePage('water', this); return false;">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>
                 Water
@@ -918,9 +1112,17 @@
                 Achievements
             </a>
         </div>
+        <a href="#" class="nav-item" onclick="openSearch(); return false;">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Search
+        </a>
         <a href="#" class="nav-item" style="margin-bottom: 6px;" onclick="changePage('settings', this); return false;">
             <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             Settings
+        </a>
+        <a href="#" class="nav-item" style="color: var(--neon-red);" onclick="appMandatoryLogout(); return false;">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Log Out
         </a>
     </aside>
 
@@ -995,6 +1197,21 @@
                 <div class="water-quick"><button class="btn-primary" onclick="addWater(250)">+250 ml</button><button class="btn-primary" onclick="addWater(500)">+500 ml</button></div>
             </section>
 
+            <section class="panel" data-sec="skincare" id="skincareDashCard">
+                <div class="panel-header" style="margin-bottom: 12px;">
+                    <div>
+                        <h2 class="panel-title">Skincare &amp; Daily To-Do</h2>
+                        <span style="font-size: 12px; color: var(--text-muted);" id="scDashSub">Morning • Evening • Night routines &amp; daily checklist</span>
+                    </div>
+                    <button class="btn-primary" onclick="changePage('skincare', null)">Open</button>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;">
+                    <span id="scDashText">0 / 0 steps &amp; tasks done</span>
+                    <span id="scDashPct" style="color: var(--neon-cyan); font-weight: 600;">0%</span>
+                </div>
+                <div class="level-bar-container" style="margin-top: 0;"><div class="level-bar-fill" id="scDashBar"></div></div>
+            </section>
+
             <div class="workspace">
                 <div class="ws-col">
                 <div class="panel" data-sec="overview" style="text-align: center;">
@@ -1009,6 +1226,16 @@
                     <p style="color: var(--text-muted); font-size: 13px; margin-top: 15px;" id="progressMessage">Let's get started!</p>
                 </div>
 
+                <div class="panel" data-sec="tasks">
+                    <div class="panel-header" style="margin-bottom: 15px;">
+                        <div>
+                            <h2 class="panel-title">Today's Tasks</h2>
+                            <span style="font-size: 12px; color: var(--neon-cyan); font-weight: 600;" id="homeTasksCount"></span>
+                        </div>
+                        <button class="btn-primary" onclick="openTaskModal()">+ Add Task</button>
+                    </div>
+                    <div class="habit-list" id="homeTasks"></div>
+                </div>
                 </div>
                 <div class="ws-col">
             <!-- STATISTICS (HOME) -->
@@ -1236,6 +1463,144 @@
             </section>
         </div>
 
+        <!-- SKINCARE & TO-DO LIST PAGE -->
+        <div id="page-skincare" class="page-section">
+            <header class="top-header">
+                <div>
+                    <h1>Skincare &amp; To-Do List</h1>
+                    <p id="skincareDateText">Personalized Morning, Evening &amp; Night routines + Daily To-Do</p>
+                </div>
+                <button class="btn-primary" onclick="applyRecommendedSkincare(true)">Reset Recommended Routine</button>
+            </header>
+
+            <!-- Progress Stats Row -->
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-title">Skincare Progress</div>
+                    <div class="stat-value" style="color: var(--neon-cyan);" id="scTotalPct">0%</div>
+                    <div class="level-bar-container"><div class="level-bar-fill" id="scTotalBar"></div></div>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 5px; text-align: right;" id="scTotalCount">0 / 0 steps done</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Morning • Evening • Night</div>
+                    <div class="stat-value" style="font-size: 20px; color: var(--neon-green);" id="scSlotBreakdown">0/0 • 0/0 • 0/0</div>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;" id="scProfileBadge">Female • Normal Skin</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Daily To-Do Progress</div>
+                    <div class="stat-value" style="color: var(--neon-purple);" id="tdTotalPct">0%</div>
+                    <div class="level-bar-container"><div class="level-bar-fill" id="tdTotalBar"></div></div>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 5px; text-align: right;" id="tdTotalCount">0 / 0 tasks done</div>
+                </div>
+            </section>
+
+            <!-- Skin Profile Customization Panel -->
+            <section class="panel">
+                <div class="panel-header" style="margin-bottom: 12px;">
+                    <div>
+                        <h2 class="panel-title">Customize Your Skincare Profile</h2>
+                        <div class="setting-desc">Select your gender, skin type, and concerns to tailor your Morning, Evening, and Night routines.</div>
+                    </div>
+                    <button class="btn-primary" onclick="applyRecommendedSkincare(false)">Apply Recommended Routine</button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+                    <div>
+                        <div class="setting-title" style="font-size: 13px; margin-bottom: 6px;">1. Gender Profile</div>
+                        <div class="skin-chip-row" id="scGenderRow"></div>
+                    </div>
+                    <div>
+                        <div class="setting-title" style="font-size: 13px; margin-bottom: 6px;">2. Skin Type</div>
+                        <div class="skin-chip-row" id="scTypeRow"></div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 14px;">
+                    <div class="setting-title" style="font-size: 13px; margin-bottom: 6px;">3. Skin Concerns (Pick one or more)</div>
+                    <div class="skin-chip-row" id="scConcernsRow"></div>
+                </div>
+            </section>
+
+            <!-- Main Two-Column Workspace: Skincare Routines (Left) + Daily To-Do List (Right) -->
+            <div class="skin-grid">
+                <!-- Left Column: Morning, Evening & Night Skincare Routines -->
+                <section class="panel">
+                    <div class="panel-header" style="margin-bottom: 14px;">
+                        <h2 class="panel-title">Daily Skincare Routine</h2>
+                        <span style="font-size: 12px; color: var(--neon-yellow); font-weight: 600;">+5 XP per step</span>
+                    </div>
+
+                    <div class="task-tabs" id="scSlotTabs" style="margin-bottom: 16px;"></div>
+
+                    <!-- Add Custom Skincare Step -->
+                    <div class="sound-row" style="margin-bottom: 18px; flex-direction: column; align-items: stretch;">
+                        <div class="sound-row-title" style="margin-bottom: 6px;">+ Add Custom Skincare Step</div>
+                        <div class="skin-form-grid">
+                            <div class="input-group" style="margin: 0;">
+                                <input type="text" id="scStepNameInput" placeholder="e.g. Vitamin C Serum / Ice Roller" onkeydown="if (event.key === 'Enter') addCustomSkincareStep()">
+                            </div>
+                            <div class="input-group" style="margin: 0;">
+                                <select id="scStepSlotInput">
+                                    <option value="morning">Morning Routine</option>
+                                    <option value="evening">Evening Routine</option>
+                                    <option value="night">Night Routine</option>
+                                </select>
+                            </div>
+                            <div class="input-group" style="margin: 0;">
+                                <input type="text" id="scStepNoteInput" placeholder="Tip / Product note (optional)" onkeydown="if (event.key === 'Enter') addCustomSkincareStep()">
+                            </div>
+                        </div>
+                        <button class="btn-primary" style="margin-top: 10px; width: 100%;" onclick="addCustomSkincareStep()">+ Add Step to Routine</button>
+                    </div>
+
+                    <div id="scRoutinesContainer"></div>
+                </section>
+
+                <!-- Right Column: Daily To-Do List -->
+                <section class="panel">
+                    <div class="panel-header" style="margin-bottom: 14px;">
+                        <div>
+                            <h2 class="panel-title">Daily To-Do List</h2>
+                            <div class="setting-desc">Quick checklist with reminders &amp; progress</div>
+                        </div>
+                        <button class="btn-primary" style="background: transparent; border-color: var(--text-muted); color: var(--text-muted); font-size: 12px; padding: 6px 12px;" onclick="clearCompletedTodos()">Clear Done</button>
+                    </div>
+
+                    <div class="sound-row" style="margin-bottom: 16px; flex-direction: column; align-items: stretch;">
+                        <div class="sound-row-title" style="margin-bottom: 6px;">+ Add New To-Do Task</div>
+                        <div class="input-group" style="margin-bottom: 8px;">
+                            <input type="text" id="todoTitleInput" placeholder="What do you need to get done?" onkeydown="if (event.key === 'Enter') addTodoItem()">
+                        </div>
+                        <div class="skin-form-grid" style="margin-top: 0;">
+                            <div class="input-group" style="margin: 0;">
+                                <select id="todoCatInput">
+                                    <option value="Personal">Personal</option>
+                                    <option value="Self-Care">Self-Care</option>
+                                    <option value="Work">Work</option>
+                                    <option value="Health">Health</option>
+                                    <option value="Shopping">Shopping</option>
+                                </select>
+                            </div>
+                            <div class="input-group" style="margin: 0;">
+                                <select id="todoPrioInput">
+                                    <option value="1">High Priority</option>
+                                    <option value="2" selected>Medium Priority</option>
+                                    <option value="3">Low Priority</option>
+                                </select>
+                            </div>
+                            <div class="input-group" style="margin: 0;">
+                                <input type="time" id="todoRemInput" title="Optional Reminder Time">
+                            </div>
+                        </div>
+                        <button class="btn-primary" style="margin-top: 10px; width: 100%;" onclick="addTodoItem()">+ Add To-Do</button>
+                    </div>
+
+                    <div class="task-tabs" id="todoFilterTabs" style="margin-bottom: 14px;"></div>
+                    <div class="habit-list" id="todoListContainer"></div>
+                </section>
+            </div>
+        </div>
+
         <!-- ACHIEVEMENTS PAGE -->
         <div id="page-achievements" class="page-section">
             <header class="top-header">
@@ -1278,16 +1643,19 @@
         <div class="mobile-nav-item" data-pages="journal" onclick="changePage('journal', this)">
             <span class="mobile-nav-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>Notes
         </div>
-        <div class="mobile-nav-item" data-pages="water,achievements,settings" onclick="toggleMore()">
+        <div class="mobile-nav-item" data-pages="skincare,water,achievements,settings" onclick="toggleMore()">
             <span class="mobile-nav-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></span>More
         </div>
     </nav>
 
     <div class="more-backdrop" id="moreBackdrop" onclick="closeMore()"></div>
     <div class="more-sheet" id="moreSheet">
+        <div class="more-item" onclick="changePage('skincare', null)"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"/></svg>Skincare &amp; To-Do</div>
+        <div class="more-item" onclick="closeMore(); openSearch()"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Search</div>
         <div class="more-item" onclick="changePage('water', null)"><svg class="icon" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>Water</div>
         <div class="more-item" onclick="changePage('achievements', null)"><svg class="icon" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>Achievements</div>
         <div class="more-item" onclick="changePage('settings', null)"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>Settings</div>
+        <div class="more-item" style="color: var(--neon-red);" onclick="closeMore(); appMandatoryLogout()"><svg class="icon" style="color: var(--neon-red);" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log Out</div>
     </div>
 
     <div class="modal-overlay" id="installHelp" onclick="if (event.target === this) closeInstallHelp()">
@@ -1500,6 +1868,7 @@
         }
 
         function changePage(pageId, element) {
+            if (typeof isUserAuthenticated === 'function' && !isUserAuthenticated()) { enforceAuthGate(); return; }
             closeMore();
             document.querySelectorAll('.page-section').forEach(page => page.classList.remove('active'));
             document.getElementById(`page-${pageId}`).classList.add('active');
@@ -1532,6 +1901,10 @@
 
             if (pageId === 'journal') {
                 renderJournal();
+            }
+
+            if (pageId === 'skincare' && typeof renderSkincarePage === 'function') {
+                renderSkincarePage();
             }
 
             if (pageId === 'dashboard') {
@@ -2015,7 +2388,7 @@
         // ---- JOURNEY: timeline, before/after, milestones + forecast, balance wheel ----
 
         // ---- SEARCH ----
-        function openSearch() { $('searchOverlay').classList.add('show'); $('searchInput').value = ''; $('searchResults').innerHTML = ''; setTimeout(() => $('searchInput').focus(), 50); }
+        function openSearch() { if (typeof isUserAuthenticated === 'function' && !isUserAuthenticated()) { enforceAuthGate(); return; } $('searchOverlay').classList.add('show'); $('searchInput').value = ''; $('searchResults').innerHTML = ''; setTimeout(() => $('searchInput').focus(), 50); }
         function closeSearch() { $('searchOverlay').classList.remove('show'); }
         function goTo(page) { closeSearch(); changePage(page, null); }
         function doSearch(q) {
@@ -2025,6 +2398,13 @@
             appState.habits.forEach(h => add('Habit', h.name, 'habits'));
             appState.tasks.forEach(x => add('Task', x.title, 'tasks'));
             Object.keys(appState.journal).forEach(d => { const e = appState.journal[d]; [e.day, e.missed, e.why].forEach(x => x && add('Note', `${formatTaskDate(d.slice(0, 10))}: ${x}`, 'journal')); });
+            (appState.rules || []).forEach(r => add('Rule', typeof r === 'string' ? r : (r.text || r.title || ''), 'settings'));
+            if (appState.skincare && appState.skincare.routines) {
+                ['morning', 'evening', 'night'].forEach(slot => {
+                    (appState.skincare.routines[slot] || []).forEach(st => add('Skincare (' + slot + ')', st.name + (st.note ? ' - ' + st.note : ''), 'skincare'));
+                });
+            }
+            (appState.todoList || []).forEach(td => add('To-Do', td.title + (td.cat ? ' [' + td.cat + ']' : ''), 'skincare'));
             $('searchResults').innerHTML = out.slice(0, 30).map(r => `<div class="search-result" onclick="goTo('${r.page}')"><span class="search-tag">${r.type}</span>${esc(r.text)}</div>`).join('') || gEmpty('No results.');
         }
         document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openSearch(); } if (e.key === 'Escape') closeSearch(); });
@@ -2033,6 +2413,8 @@
         function toggleRestDay(d) { const r = appState.restDays, i = r.indexOf(d); if (i >= 0) r.splice(i, 1); else r.push(d); saveData(); updateUI(); renderCalendar(); renderPrefsPanels(); }
         function setReminder(on, time) { if (on === true && 'Notification' in window && Notification.permission === 'default') Notification.requestPermission(); prefs.reminder.on = on; if (time) prefs.reminder.time = time; savePrefs(); renderPrefsPanels(); }
         function checkReminder() {
+            if (typeof isUserAuthenticated === 'function' && !isUserAuthenticated()) return;
+            if (typeof checkSkincareAndTodoReminders === 'function') checkSkincareAndTodoReminders();
             const r = prefs.reminder, n = new Date(), t = getTodayStr();
             if (!r.on || r.last === t || r.time !== `${pad2(n.getHours())}:${pad2(n.getMinutes())}`) return;
             r.last = t; savePrefs();
@@ -2082,7 +2464,7 @@
         function renderPrefsPanels() {
             if (!$('prefsPanel')) return;
             const rest = WEEKDAY_ORDER.map(d => `<button type="button" class="weekday-btn ${appState.restDays.includes(d) ? 'selected' : ''}" onclick="toggleRestDay(${d})">${WEEKDAY_NAMES[d]}</button>`).join('');
-            const secs = [['stats', 'Top stat cards'], ['water', 'Water card'], ['overview', 'Daily Overview'], ['tracker', 'Monthly Tracker'], ['statistics', 'Statistics graph'], ['weekly', 'Weekly Performance'], ['monthly', 'Monthly Performance']];
+            const secs = [['stats', 'Top stat cards'], ['water', 'Water card'], ['skincare', 'Skincare & Daily To-Do'], ['overview', 'Daily Overview'], ['tasks', "Today's Tasks"], ['tracker', 'Monthly Tracker'], ['statistics', 'Statistics graph'], ['weekly', 'Weekly Performance'], ['monthly', 'Monthly Performance']];
             const sw = (checked, fn) => `<label class="switch"><input type="checkbox" ${checked ? 'checked' : ''} onchange="${fn}"><span class="switch-slider"></span></label>`;
             const line = (title, desc, ctl) => `<div class="setting-line" style="margin-bottom: 14px;"><div><div class="setting-title">${title}</div><div class="setting-desc">${desc}</div></div>${ctl}</div>`;
             const usual = habitTimes().reduce((a, x) => a.concat(x.all), []);
@@ -2198,7 +2580,7 @@
             const vers = (() => { try { return JSON.parse(localStorage.getItem('quantumVersions') || '[]'); } catch (e) { return []; } })();
             const inDemo = !!localStorage.getItem('quantumDemoBackup');
             box.innerHTML = `<h2 class="panel-title" style="margin-bottom: 14px;">Privacy Dashboard</h2>
-                <div class="setting-desc" style="margin-bottom: 10px;">All your data stays on this device. Nexus sends nothing to any server. Storage used: <b>${(bytes / 1024).toFixed(0)} KB</b>. App lock: <b>${prefs.pinHash ? 'on' : 'off'}</b>.</div>
+                <div class="setting-desc" style="margin-bottom: 10px;">${(typeof CLOUD_ON !== 'undefined' && CLOUD_ON && typeof cloud !== 'undefined' && cloud.session) ? `Saved on this device and backed up to your cloud account (<b>${esc(cloud.session.user.email)}</b>).` : 'Without an account, all your data stays on this device.'} Local storage used: <b>${(bytes / 1024).toFixed(0)} KB</b>. App lock: <b>${prefs.pinHash ? 'on' : 'off'}</b>.</div>
                 ${gTiles([['Habits', appState.habits.length], ['Tasks', appState.tasks.length], ['Notes', cnt(appState.journal)], ['Log entries', appState.distractions.length + appState.procrastination.length + cnt(appState.energy)]])}
                 <div class="quick-row" style="margin: 14px 0 22px;"><span class="quick-chip" onclick="deleteData('notes')">Delete notes</span><span class="quick-chip" style="color: var(--neon-red); border-color: var(--neon-red);" onclick="deleteData('all')">Delete everything</span></div>
                 <h2 class="panel-title" style="margin-bottom: 8px;">Version History</h2>
@@ -2245,7 +2627,7 @@
             const t = getTodayStr(); h.counts = h.counts || {};
             const n = Math.max(0, Math.min(h.target || 1, (h.counts[t] || 0) + delta));
             h.counts[t] = n;
-            if ((n >= (h.target || 1)) !== !!h.completed) toggleHabit(id); else { saveData(); renderHabits(); }
+            if ((n >= (h.target || 1)) !== !!h.completed) toggleHabit(id, true); else { saveData(); renderHabits(); }
         }
 
         // new day while the app stays open
@@ -2287,12 +2669,13 @@
                 else if (x.date !== undefined) x.date = date(x.date);
                 x.weekdays = Array.isArray(x.weekdays) ? [...new Set(x.weekdays.map(Number).filter(n => Number.isInteger(n) && n >= 0 && n <= 6))] : [];
                 x.monthDay = Math.min(31, Math.max(1, Math.floor(Number(x.monthDay) || 1)));
+                x.prio = [1, 2, 3].includes(Number(x.prio)) ? Number(x.prio) : 2;
                 x.done = obj(x.done);
                 Object.keys(x.done).forEach(k => { if (!date(k)) delete x.done[k]; else x.done[k] = x.done[k] === true; });
                 return x;
             });
-            ['badges','journal','tickTimes','energy','wins','balance','reviews','ba','goal','habitMins','habitPrio','plan','audits','water'].forEach(k => { d[k] = obj(d[k]); });
-            ['distractions','procrastination','focus','stacks','plans','rules','restDays','goals','values','experiments','automations','kb','feedback'].forEach(k => { d[k] = arr(d[k]); });
+            ['badges','journal','tickTimes','energy','wins','balance','reviews','ba','goal','habitMins','habitPrio','plan','audits','water','skincare'].forEach(k => { d[k] = obj(d[k]); });
+            ['distractions','procrastination','focus','stacks','plans','rules','restDays','goals','values','experiments','automations','kb','feedback','todoList'].forEach(k => { d[k] = arr(d[k]); });
             d.totalXp = Math.max(0, Math.floor(Number(d.totalXp) || 0));
             d.currentLevel = Math.max(1, Math.floor(Number(d.currentLevel) || 1));
             d.highestLevel = Math.max(1, Math.floor(Number(d.highestLevel) || d.currentLevel));
@@ -2688,17 +3071,20 @@
             });
         }
 
-        function toggleHabit(id) {
+        function toggleHabit(id, skipDebounce) {
             const habit = appState.habits.find(h => h.id === id);
             if (!habit) return;
             const nowMs = Date.now();
-            if (toggleHabit.last && toggleHabit.last.id === id && nowMs - toggleHabit.last.t < 350) return;
+            if (!skipDebounce && toggleHabit.last && toggleHabit.last.id === id && nowMs - toggleHabit.last.t < 350) return;
             toggleHabit.last = { id, t: nowMs };
 
             const today = getTodayStr();
             habit.completed = !habit.completed;
             habit.history[today] = habit.completed;
-            if ((habit.target || 1) > 1) { habit.counts = habit.counts || {}; habit.counts[today] = habit.completed ? habit.target : Math.min(habit.counts[today] || 0, habit.target - 1); }
+            if ((habit.target || 1) > 1) {
+                habit.counts = habit.counts || {};
+                if (!skipDebounce) habit.counts[today] = habit.completed ? habit.target : Math.min(habit.counts[today] || 0, habit.target - 1);
+            }
 
             if (habit.completed) {
                 appState.totalXp += HABIT_XP;
@@ -2841,23 +3227,12 @@
             const dataPoints = [];
             const labels = [];
 
-            const totalHabits = appState.habits.length;
-
             for (let i = daysCount - 1; i >= 0; i--) {
                 const dateStr = getPastDateStr(i);
                 const dateObj = new Date();
                 dateObj.setDate(dateObj.getDate() - i);
                 labels.push(dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-
-                if (totalHabits === 0) {
-                    dataPoints.push(0);
-                } else {
-                    let completedOnDay = 0;
-                    appState.habits.forEach(h => {
-                        if (h.history[dateStr]) completedOnDay++;
-                    });
-                    dataPoints.push((completedOnDay / totalHabits) * 100);
-                }
+                dataPoints.push(rateFor([dateStr]));
             }
 
             for (let i = 0; i <= 4; i++) {
@@ -2975,12 +3350,16 @@
             return appState.habits.reduce((sum, h) => sum + Object.values(h.history).filter(v => v === true).length, 0);
         }
 
+        function isOffDay(d) {
+            return isRestDay(d) || (appState.habits.length > 0 && schedHabits(d).length === 0);
+        }
+
         function getCurrentStreak() {
             const active = getActiveDates();
             let d = getTodayStr();
             if (!active.has(d)) d = dateAdd(d, -1);
             let count = 0;
-            for (let i = 0; i < 3700; i++) { if (active.has(d)) count++; else if (!isRestDay(d)) break; d = dateAdd(d, -1); }
+            for (let i = 0; i < 3700; i++) { if (active.has(d)) count++; else if (!isOffDay(d)) break; d = dateAdd(d, -1); }
             return count;
         }
 
@@ -2988,7 +3367,18 @@
             const dates = Array.from(getActiveDates()).sort();
             let best = 0, run = 0, prev = null;
             dates.forEach(d => {
-                run = (prev && dateAdd(prev, 1) === d) ? run + 1 : 1;
+                if (!prev) {
+                    run = 1;
+                } else if (dateAdd(prev, 1) === d) {
+                    run += 1;
+                } else {
+                    let cur = dateAdd(prev, 1), bridged = true;
+                    while (cur < d) {
+                        if (!isOffDay(cur)) { bridged = false; break; }
+                        cur = dateAdd(cur, 1);
+                    }
+                    run = bridged ? run + 1 : 1;
+                }
                 if (run > best) best = run;
                 prev = d;
             });
@@ -3279,8 +3669,9 @@
             clearNoteForm();
             document.getElementById('noteSavedAt').innerText = '';
 
-            // Habits not completed today (tap to add to "missed")
-            missedTodayList = appState.habits.filter(h => !h.completed).map(h => h.name);
+            // Habits scheduled for today that are not completed yet (tap to add to "missed")
+            const todayKey = getTodayStr();
+            missedTodayList = isRestDay(todayKey) ? [] : schedHabits(todayKey).filter(h => !h.completed).map(h => h.name);
             const hint = document.getElementById('missedHint');
             if (missedTodayList.length) {
                 hint.innerHTML = '<p>Not completed today (tap to add):</p>' +
@@ -3418,6 +3809,16 @@
             return null;
         }
 
+        const TASK_PRIOS = {
+            1: { label: 'High',   color: 'var(--neon-red)' },
+            2: { label: 'Medium', color: 'var(--neon-yellow)' },
+            3: { label: 'Low',    color: 'var(--text-muted)' }
+        };
+        function prioTag(t) {
+            const p = TASK_PRIOS[t.prio || 2] || TASK_PRIOS[2];
+            return `<span class="task-tag" style="--tc:${p.color};">${p.label}</span>`;
+        }
+
         function getTasksDueToday() {
             const today = getTodayStr();
             const list = [];
@@ -3425,12 +3826,12 @@
                 if (taskOccursOn(t, today)) list.push({ task: t, date: today, overdue: false });
                 else if (t.type === 'once' && t.date < today && !t.done[t.date]) list.push({ task: t, date: t.date, overdue: true });
             });
-            list.sort((a, b) => (b.overdue ? 1 : 0) - (a.overdue ? 1 : 0));
+            list.sort((a, b) => ((b.overdue ? 1 : 0) - (a.overdue ? 1 : 0)) || ((a.task.prio || 2) - (b.task.prio || 2)));
             return list;
         }
 
         function typeTag(t) {
-            const ty = TASK_TYPES[t.type];
+            const ty = TASK_TYPES[t.type] || TASK_TYPES.once;
             return `<span class="task-tag" style="--tc:${ty.color};">${ty.label}</span>`;
         }
 
@@ -3442,7 +3843,7 @@
                     <div class="custom-checkbox ${done ? 'checked' : ''}" onclick="toggleTask('${t.id}', '${item.date}')">${done ? '✓' : ''}</div>
                     <div class="habit-info">
                         <h3>${escapeHtml(t.title)}</h3>
-                        <p>${typeTag(t)}<span class="habit-xp">+${TASK_XP} XP</span>${item.overdue ? `<span class="task-tag" style="--tc:var(--neon-red);">Overdue - ${formatTaskDate(item.date)}</span>` : ''}</p>
+                        <p>${typeTag(t)}${prioTag(t)}<span class="habit-xp">+${TASK_XP} XP</span>${item.overdue ? `<span class="task-tag" style="--tc:var(--neon-red);">Overdue - ${formatTaskDate(item.date)}</span>` : ''}</p>
                     </div>
                 </div>`;
         }
@@ -3499,7 +3900,7 @@
         function taskManageRow(t) {
             const today = getTodayStr();
             let detail = '';
-            let tags = typeTag(t);
+            let tags = typeTag(t) + prioTag(t);
             const next = nextOccurrence(t);
             let rowClass = '';
 
@@ -3700,6 +4101,8 @@
             renderWeeklyChart();
             renderWaterAll();
             renderHomeTasks();
+            if (typeof renderSkincareDashCard === 'function') renderSkincareDashCard();
+            if (typeof renderSkincarePage === 'function' && document.getElementById('page-skincare') && document.getElementById('page-skincare').classList.contains('active')) renderSkincarePage();
             updateStreakAndBadges();
         }
 
@@ -3722,15 +4125,14 @@
                 const endDay = Math.min(startDay + 6, daysInMonth);
                 const daysInWeek = endDay - startDay + 1;
 
-                let done = 0;
-                appState.habits.forEach(h => {
-                    for (let d = startDay; d <= endDay; d++) {
-                        const key = prefix + String(d).padStart(2, '0');
-                        if (h.history[key] === true) done++;
-                    }
-                });
-
-                const possible = totalHabits * daysInWeek;
+                let done = 0, possible = 0;
+                for (let d = startDay; d <= endDay; d++) {
+                    const key = prefix + String(d).padStart(2, '0');
+                    if (isRestDay(key)) continue;
+                    const sched = schedHabits(key);
+                    possible += sched.length;
+                    sched.forEach(h => { if (h.history[key] === true) done++; });
+                }
                 const pct = possible === 0 ? 0 : Math.round((done / possible) * 100);
                 const isFuture = startDay > todayNum;
                 const isCurrent = todayNum >= startDay && todayNum <= endDay;
@@ -3828,7 +4230,11 @@
         function deleteHabit(id) {
             confirmDo("Delete this habit? All history for it will be lost.", () => {
                 const habit = appState.habits.find(h => h.id === id);
-                if (habit && habit.completed) appState.totalXp = Math.max(0, appState.totalXp - HABIT_XP);
+                if (habit) {
+                    const doneDays = Object.values(habit.history || {}).filter(v => v === true).length;
+                    appState.totalXp = Math.max(0, appState.totalXp - doneDays * HABIT_XP);
+                    appState.currentLevel = getLevelInfo(appState.totalXp).level;
+                }
                 appState.habits = appState.habits.filter(h => h.id !== id);
                 saveData();
                 renderHabits();
@@ -4063,19 +4469,21 @@ html[data-ui="legend"] :is(.panel,.stat-card,.calendar-section){clip-path:polygo
       const ln = light ? 'rgba(0,0,0,.16)' : 'rgba(255,255,255,.22)';
       const rowbg = light ? '#ffffff' : 'rgba(255,255,255,.05)';
       const sel = cur === t.id;
+      const lockedThemes = (typeof cloud !== 'undefined' && cloud.settings && Array.isArray(cloud.settings.premium_themes)) ? cloud.settings.premium_themes : [];
+      const isPremLocked = lockedThemes.includes(t.id) && !(typeof isPremium === 'function' && isPremium());
       return `
-        <div class="as-card ${sel ? 'sel' : ''}" onclick="setTheme('${t.id}')">
+        <div class="as-card ${sel ? 'sel' : ''}" style="${isPremLocked ? 'opacity:0.75;' : ''}" onclick="setTheme('${t.id}')">
           <div class="as-prev" style="background:${c.bg};--ln:${ln};--rowbg:${rowbg};">
             <span class="as-glow" style="background:${c.a};"></span>
             <div class="as-top"><i style="background:${c.a}"></i><i style="background:${c.b}"></i><b></b></div>
             <div class="as-row big" style="border-color:${c.a}66;"><span class="as-ic" style="background:${c.a}"></span><div class="as-lines"><u></u><u></u></div></div>
             <div class="as-row sm"><span class="as-ic" style="background:${c.a}"></span><div class="as-lines"><u></u></div></div>
-            <em class="as-badge" style="background:${c.a};">${t.name.toUpperCase()}</em>
+            <em class="as-badge" style="background:${c.a};">${isPremLocked ? 'PREMIUM' : t.name.toUpperCase()}</em>
           </div>
           <div class="as-info">
             <div>
               <div class="as-name">${t.name}</div>
-              <div class="as-state">${sel ? 'Currently active' : TAGLINE[t.id]}</div>
+              <div class="as-state">${sel ? 'Currently active' : (isPremLocked ? 'Premium members only' : TAGLINE[t.id])}</div>
             </div>
             <span class="as-act">${sel ? CHECK : ARROW}</span>
           </div>
@@ -4400,7 +4808,10 @@ async function afterLogin(title) {
 async function cloudLogout(silent) {
     if (cloud.session) { try { await cloudFetch('/auth/v1/logout', { method: 'POST' }); } catch (e) {} }
     clearTimeout(cloud.timer); cloudClearSession(); cloud.pending = null; cloud.busy = false; authMode = 'login'; cloudClearBoot();
-    cloudSetStatus('loggedout'); renderAccountPanel(); if (!silent) notify({ type: 'info', title: 'Logged out', message: 'Your data is still on this device.' });
+    try { localStorage.removeItem('quantumActiveSession'); } catch (e) {}
+    cloudSetStatus('loggedout'); renderAccountPanel();
+    if (typeof enforceAuthGate === 'function') enforceAuthGate();
+    if (!silent) notify({ type: 'info', title: 'Logged out', message: 'Please log in to access the app.' });
 }
 function cloudLogoutErase() {
     if (getMeta().dirty) return notify({ type: 'error', title: 'Not backed up yet', message: 'Tap "Sync now" first so nothing is lost.' });
@@ -4491,6 +4902,13 @@ async function cloudBootstrap() {
         cloud.profile = r.profile || null; cloud.settings = r.settings || {}; cloud.announcements = r.announcements || []; cloud.bootAt = Date.now();
         cloudLS.set('quantumBoot', { uid: cloud.session.user.id, profile: cloud.profile, settings: cloud.settings, announcements: cloud.announcements });
     } catch (e) { /* offline or admin panel not installed yet: keep what we have */ }
+    const lockedThemes = (cloud.settings && Array.isArray(cloud.settings.premium_themes)) ? cloud.settings.premium_themes : [];
+    const curTheme = cloudLS.get('quantumTheme', 'dark') || 'dark';
+    if (lockedThemes.includes(curTheme) && !isPremium()) {
+        try { localStorage.setItem('quantumTheme', 'dark'); } catch (e) {}
+        applyTheme('dark');
+    }
+    if ($('appearancePanel')) renderAppearance();
     renderBoot(); renderAccountPanel();
     if (cloud.profile && cloud.profile.banned) cloudSetStatus('paused', 'Your account is suspended, so cloud backup is off. Your data stays on this device.');
 }
@@ -4581,6 +4999,813 @@ window.addEventListener('online', () => cloudSync(false));
 setInterval(() => { if (!document.hidden && cloud.session) { cloudSync(false); cloudRenderChip(); } }, 60000);
 
 </script>
+
+<script>
+/* ================= MANDATORY LOGIN GATE + SKINCARE ROUTINE & TO-DO LIST ================= */
+let gateMode = 'login', gateBusy = false;
+let scActiveSlot = 'all', todoFilter = 'all';
+
+const SKIN_GENDERS = [
+    { id: 'female', label: 'Female' },
+    { id: 'male',   label: 'Male' }
+];
+const SKIN_TYPES = [
+    { id: 'normal',      label: 'Normal' },
+    { id: 'oily',        label: 'Oily' },
+    { id: 'dry',         label: 'Dry' },
+    { id: 'combination', label: 'Combination' },
+    { id: 'sensitive',   label: 'Sensitive' }
+];
+const SKIN_CONCERNS = [
+    { id: 'acne',         label: 'Acne & Pimples' },
+    { id: 'pigmentation', label: 'Dark Spots & Pigmentation' },
+    { id: 'dryness',      label: 'Dryness & Dehydration' },
+    { id: 'pores',        label: 'Oiliness & Open Pores' },
+    { id: 'aging',        label: 'Fine Lines & Anti-Aging' },
+    { id: 'dullness',     label: 'Tan & Dullness' },
+    { id: 'redness',      label: 'Redness & Sensitivity' },
+    { id: 'grooming',     label: 'Beard / Post-Shave / Double Cleanse' }
+];
+const SKIN_SLOTS = [
+    { id: 'morning', label: 'Morning Routine', short: 'Morning', defTime: '07:30', color: 'var(--neon-yellow)' },
+    { id: 'evening', label: 'Evening Routine', short: 'Evening', defTime: '18:30', color: 'var(--neon-cyan)' },
+    { id: 'night',   label: 'Night Routine',   short: 'Night',   defTime: '22:00', color: 'var(--neon-purple)' }
+];
+
+// ---------- 1. MANDATORY LOGIN GATE ----------
+function getActiveAuthUser() {
+    if (typeof cloud !== 'undefined' && cloud.session && cloud.session.user && cloud.session.user.email) {
+        const localMeta = cloudLS.get('quantumActiveSession', null);
+        return {
+            email: cloud.session.user.email,
+            name: (localMeta && localMeta.email === cloud.session.user.email && localMeta.name) ? localMeta.name : cloud.session.user.email.split('@')[0]
+        };
+    }
+    const localSess = cloudLS.get('quantumActiveSession', null);
+    if (localSess && localSess.email) return localSess;
+    return null;
+}
+
+function isUserAuthenticated() {
+    return !!getActiveAuthUser();
+}
+
+function updateUserGreeting() {
+    const u = getActiveAuthUser();
+    if (!u) return;
+    const rawName = (u.name || u.email.split('@')[0] || 'Achiever').trim();
+    const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+    const now = new Date(), hours = now.getHours();
+    const greeting = hours < 12 ? 'Good Morning' : (hours < 18 ? 'Good Afternoon' : 'Good Evening');
+    const gt = document.getElementById('greetingText');
+    if (gt) gt.innerText = `${greeting}, ${displayName}!`;
+    const av = document.querySelector('.user-profile .avatar');
+    if (av) av.innerText = displayName.charAt(0).toUpperCase();
+}
+
+function enforceAuthGate() {
+    if (isUserAuthenticated()) {
+        document.body.classList.remove('auth-locked');
+        updateUserGreeting();
+    } else {
+        document.body.classList.add('auth-locked');
+        const wm = document.getElementById('welcomeModal');
+        if (wm) wm.classList.remove('show');
+    }
+}
+
+function setGateMsg(txt, isErr) {
+    const m = document.getElementById('gateMsg');
+    if (!m) return;
+    m.textContent = txt || '';
+    m.style.color = isErr ? 'var(--neon-red)' : 'var(--neon-green)';
+}
+
+function setGateMode(m) {
+    gateMode = m;
+    setGateMsg('');
+    document.getElementById('gateTabLogin').classList.toggle('active', m === 'login');
+    document.getElementById('gateTabSignup').classList.toggle('active', m === 'signup');
+    document.getElementById('gateTabForgot').classList.toggle('active', m === 'forgot');
+    document.getElementById('gateNameGroup').style.display = m === 'signup' ? 'block' : 'none';
+    document.getElementById('gatePassGroup').style.display = m === 'forgot' ? 'none' : 'block';
+    document.getElementById('gateShowPassRow').style.display = m === 'forgot' ? 'none' : 'flex';
+    document.getElementById('gatePassLabel').textContent = m === 'signup' ? 'Password (8+ characters, letters & numbers)' : 'Password';
+    const titles = { login: 'Log In to Nexus', signup: 'Create Account & Enter', forgot: 'Send Password Reset' };
+    document.getElementById('gateSubmitBtn').textContent = titles[m] || 'Log In';
+}
+
+async function submitGateAuth() {
+    if (gateBusy) return;
+    const email = (document.getElementById('gateEmail').value || '').trim().toLowerCase();
+    const pass = (document.getElementById('gatePass').value || '');
+    const nameInput = (document.getElementById('gateName').value || '').trim();
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return setGateMsg('Please enter a valid email address.', true);
+    if (gateMode !== 'forgot' && !pass) return setGateMsg('Please enter your password.', true);
+    if (gateMode === 'signup' && !strongPass(pass)) return setGateMsg('Password needs 8+ characters with letters and numbers.', true);
+
+    gateBusy = true;
+    setGateMsg('Please wait...', false);
+    const passHash = await hashPin(email + '::' + pass);
+    const accounts = cloudLS.get('quantumLocalAccounts', {});
+    const back = encodeURIComponent(location.origin + location.pathname);
+
+    try {
+        if (gateMode === 'forgot') {
+            if (CLOUD_ON) {
+                try { await cloudFetch('/auth/v1/recover?redirect_to=' + back, { method: 'POST', body: { email }, token: false }); } catch (e) {}
+            }
+            setGateMsg('If this email is registered, password recovery instructions have been sent.', false);
+            return;
+        }
+
+        if (gateMode === 'signup') {
+            const userName = nameInput || email.split('@')[0];
+            accounts[email] = { email, name: userName, passHash, createdAt: Date.now() };
+            cloudLS.set('quantumLocalAccounts', accounts);
+
+            if (CLOUD_ON) {
+                try {
+                    const r = await cloudFetch('/auth/v1/signup?redirect_to=' + back, { method: 'POST', body: { email, password: pass }, token: false });
+                    if (r && r.access_token) {
+                        cloudSetSession(r);
+                    }
+                } catch (e) {
+                    if (e && !e.offline && String(e.message || '').toLowerCase().includes('already')) {
+                        return setGateMsg('This email is already registered. Please switch to Log In.', true);
+                    }
+                }
+            }
+            cloudLS.set('quantumActiveSession', { email, name: userName, loginAt: Date.now() });
+            document.getElementById('gatePass').value = '';
+            enforceAuthGate();
+            renderAccountPanel();
+            notify({ type: 'success', title: 'Welcome to Nexus!', message: `Logged in as ${email}` });
+            if (CLOUD_ON && cloud.session) { await cloudBootstrap(); await cloudSync(true); }
+            return;
+        }
+
+        // Login Mode
+        let loggedInCloud = false;
+        let cloudErr = null;
+        if (CLOUD_ON) {
+            try {
+                const r = await cloudFetch('/auth/v1/token?grant_type=password', { method: 'POST', body: { email, password: pass }, token: false });
+                if (r && r.access_token) {
+                    cloudSetSession(r);
+                    loggedInCloud = true;
+                }
+            } catch (e) {
+                cloudErr = e;
+            }
+        }
+
+        const localAcc = accounts[email];
+        if (!loggedInCloud) {
+            if (localAcc && localAcc.passHash === passHash) {
+                // Valid local account login
+            } else if (!localAcc && (!CLOUD_ON || (cloudErr && cloudErr.offline))) {
+                return setGateMsg('No account found for this email on this device. Please Sign Up first.', true);
+            } else {
+                return setGateMsg((cloudErr && cloudErr.message) || 'Wrong email or password. (New user? Tap Sign Up above.)', true);
+            }
+        }
+
+        const userName = (localAcc && localAcc.name) || email.split('@')[0];
+        accounts[email] = { email, name: userName, passHash, createdAt: (localAcc && localAcc.createdAt) || Date.now() };
+        cloudLS.set('quantumLocalAccounts', accounts);
+        cloudLS.set('quantumActiveSession', { email, name: userName, loginAt: Date.now() });
+        document.getElementById('gatePass').value = '';
+        setGateMsg('');
+        enforceAuthGate();
+        renderAccountPanel();
+        notify({ type: 'success', title: 'Logged in', message: email });
+        if (loggedInCloud) {
+            cloud.lastOk = 0;
+            await cloudBootstrap();
+            await cloudSync(true);
+        }
+    } finally {
+        gateBusy = false;
+    }
+}
+
+async function appMandatoryLogout() {
+    try { localStorage.removeItem('quantumActiveSession'); } catch (e) {}
+    if (typeof cloud !== 'undefined' && cloud.session) {
+        await cloudLogout(true);
+    }
+    enforceAuthGate();
+    notify({ type: 'info', title: 'Logged out', message: 'Log in again to access your account.' });
+}
+
+// Keep afterLogin in sync if user logs in via Settings
+const _origAfterLogin = typeof afterLogin === 'function' ? afterLogin : null;
+if (_origAfterLogin) {
+    afterLogin = async function (title) {
+        if (cloud.session && cloud.session.user && cloud.session.user.email) {
+            cloudLS.set('quantumActiveSession', { email: cloud.session.user.email, name: cloud.session.user.email.split('@')[0], loginAt: Date.now() });
+        }
+        enforceAuthGate();
+        return _origAfterLogin(title);
+    };
+}
+
+// ---------- 2. SKINCARE ROUTINE & DAILY TO-DO ENGINE ----------
+function buildRecommendedSkincare(gender, skinType, concerns) {
+    gender = gender || 'female';
+    skinType = skinType || 'normal';
+    concerns = Array.isArray(concerns) ? concerns : [];
+    const has = c => concerns.includes(c);
+
+    const cleanserMap = {
+        oily:        'Salicylic Acid / Foaming Gel Cleanser (removes excess sebum)',
+        dry:         'Hydrating Ceramide Cream Cleanser (non-stripping)',
+        combination: 'Gentle Balancing Amino Acid Gel Cleanser',
+        sensitive:   'Fragrance-Free Micellar / Oat Soothing Cleanser',
+        normal:      'Gentle pH-Balanced Daily Facial Cleanser'
+    };
+    const moistMap = {
+        oily:        'Oil-Free Hyaluronic Gel Moisturizer (non-comedogenic)',
+        dry:         'Rich Ceramide & Squalane Barrier Cream',
+        combination: 'Lightweight Niacinamide & Hyaluronic Lotion',
+        sensitive:   'Centella Asiatica (Cica) & Panthenol Soothing Cream',
+        normal:      'Daily Hydrating Peptide & Ceramide Moisturizer'
+    };
+
+    const morning = [
+        { id: 'sc-m-1', name: 'Morning Facial Cleanse', note: cleanserMap[skinType] || cleanserMap.normal, tag: 'Cleanser' }
+    ];
+    if (gender === 'male') {
+        morning.push({
+            id: 'sc-m-2',
+            name: has('grooming') ? 'Alcohol-Free Post-Shave Soothing Toner / Beard Conditioning' : 'Refreshing Pore-Tightening Toner',
+            note: has('grooming') ? 'Witch Hazel + Aloe Vera or lightweight Beard Oil to prevent razor bumps' : 'Hydrates and preps male skin barrier',
+            tag: 'Grooming / Toner'
+        });
+    } else {
+        morning.push({
+            id: 'sc-m-2',
+            name: 'Hydrating & pH-Balancing Toner / Essence',
+            note: skinType === 'oily' || has('pores') ? 'PHA / Niacinamide Pore-Refining Toner' : 'Rosewater / Hyaluronic Hydrating Mist',
+            tag: 'Toner'
+        });
+    }
+
+    // Targeted Morning Serum based on Skin Concerns
+    if (has('pigmentation') || has('dullness')) {
+        morning.push({ id: 'sc-m-3', name: 'Antioxidant Brightening Serum', note: '10% Vitamin C + Ferulic Acid or Alpha Arbutin for even glow', tag: 'Treatment' });
+    } else if (has('acne') || has('pores')) {
+        morning.push({ id: 'sc-m-3', name: 'Blemish & Sebum Control Serum', note: '5-10% Niacinamide + Zinc PCA to calm breakouts & pores', tag: 'Treatment' });
+    } else if (has('redness') || skinType === 'sensitive') {
+        morning.push({ id: 'sc-m-3', name: 'Calming Barrier Serum', note: 'Centella Asiatica (Cica) + Azelaic Acid derivative', tag: 'Treatment' });
+    } else {
+        morning.push({ id: 'sc-m-3', name: 'Daily Hydration & Glow Serum', note: '2% Hyaluronic Acid + Vitamin B5 on damp skin', tag: 'Serum' });
+    }
+
+    morning.push({ id: 'sc-m-4', name: 'Daytime Moisturizer', note: moistMap[skinType] || moistMap.normal, tag: 'Moisturizer' });
+    morning.push({
+        id: 'sc-m-5',
+        name: 'Broad-Spectrum Sunscreen (SPF 50 PA++++)',
+        note: skinType === 'oily' ? 'Matte Gel / Fluid SPF 50 (no white cast)' : 'Hydrating Dewy UV Defense SPF 50',
+        tag: 'Sunscreen'
+    });
+
+    // Evening Routine (Post-work / Outdoor reset)
+    const evening = [];
+    if (gender === 'female') {
+        evening.push({
+            id: 'sc-e-1',
+            name: 'First Cleanse: Micellar Water / Cleansing Balm',
+            note: 'Melts away sunscreen, makeup, and city pollution',
+            tag: 'First Cleanse'
+        });
+    } else {
+        evening.push({
+            id: 'sc-e-1',
+            name: 'Post-Outdoor Sweat & Pollution Rinse',
+            note: 'Removes grime, sweat, and daytime sunscreen build-up',
+            tag: 'Cleanse'
+        });
+    }
+    evening.push({
+        id: 'sc-e-2',
+        name: has('dullness') || has('pores') ? 'Refreshing Mist / Clay Spot Reset (2x Weekly)' : 'Rehydrating Facial Mist / Green Tea Compress',
+        note: has('acne') ? 'Keep pores clear after daytime exposure' : 'Revives tired skin in the evening',
+        tag: 'Refresh'
+    });
+    evening.push({
+        id: 'sc-e-3',
+        name: 'Lip Balm & Under-Eye Refresh',
+        note: 'Caffeine eye roll-on + nourishing SPF/peptide lip balm',
+        tag: 'Care'
+    });
+
+    // Night Routine (Repair & Recovery)
+    const night = [
+        { id: 'sc-n-1', name: 'Deep Night Cleanse', note: cleanserMap[skinType] || cleanserMap.normal, tag: 'Cleanser' }
+    ];
+    if (has('aging')) {
+        night.push({ id: 'sc-n-2', name: 'Night Renewal Active (Retinol / Peptides)', note: 'Encapsulated Retinol 0.3% or Multi-Peptide Complex (alternate nights)', tag: 'Night Active' });
+    } else if (has('acne')) {
+        night.push({ id: 'sc-n-2', name: 'Blemish & Pore Clearing Treatment', note: '2% Salicylic Acid (BHA) or Adapalene / Pimples patch on active spots', tag: 'Night Active' });
+    } else if (has('pigmentation')) {
+        night.push({ id: 'sc-n-2', name: 'Dark Spot & Tone Corrector', note: 'Tranexamic Acid / Kojic Acid / 5% Niacinamide serum', tag: 'Night Active' });
+    } else {
+        night.push({ id: 'sc-n-2', name: 'Overnight Cellular Repair Serum', note: 'Hyaluronic Acid + Ceramide + Niacinamide repair drops', tag: 'Repair Serum' });
+    }
+
+    night.push({ id: 'sc-n-3', name: 'Under-Eye & Lip Overnight Care', note: 'Peptide eye cream + sleeping lip mask', tag: 'Eye & Lip' });
+    night.push({
+        id: 'sc-n-4',
+        name: 'Overnight Barrier Lock Moisturizer',
+        note: skinType === 'dry' || has('dryness') ? 'Deep Ceramide + Squalane Overnight Sleeping Mask' : moistMap[skinType] || moistMap.normal,
+        tag: 'Night Cream'
+    });
+
+    return { morning, evening, night };
+}
+
+function ensureSkincareAndTodo() {
+    if (!appState.skincare || typeof appState.skincare !== 'object' || Array.isArray(appState.skincare)) {
+        appState.skincare = {};
+    }
+    const sc = appState.skincare;
+    if (!['female', 'male'].includes(sc.gender)) sc.gender = 'female';
+    if (!SKIN_TYPES.some(t => t.id === sc.skinType)) sc.skinType = 'normal';
+    if (!Array.isArray(sc.concerns)) sc.concerns = ['acne', 'dullness'];
+    if (!sc.routines || typeof sc.routines !== 'object') {
+        sc.routines = buildRecommendedSkincare(sc.gender, sc.skinType, sc.concerns);
+    } else {
+        ['morning', 'evening', 'night'].forEach(slot => {
+            if (!Array.isArray(sc.routines[slot])) sc.routines[slot] = [];
+        });
+    }
+    if (!sc.history || typeof sc.history !== 'object') sc.history = {};
+    if (!sc.reminders || typeof sc.reminders !== 'object') {
+        sc.reminders = {
+            morning: { on: false, time: '07:30', last: '' },
+            evening: { on: false, time: '18:30', last: '' },
+            night:   { on: false, time: '22:00', last: '' }
+        };
+    } else {
+        SKIN_SLOTS.forEach(s => {
+            if (!sc.reminders[s.id] || typeof sc.reminders[s.id] !== 'object') {
+                sc.reminders[s.id] = { on: false, time: s.defTime, last: '' };
+            }
+        });
+    }
+
+    if (!Array.isArray(appState.todoList)) {
+        appState.todoList = [
+            { id: 'td-1', title: 'Drink 1 glass of warm water after waking up', cat: 'Health', prio: 1, time: '07:15', done: false, lastNotified: '' },
+            { id: 'td-2', title: 'Complete Morning & Night Skincare Routine', cat: 'Self-Care', prio: 1, time: '08:00', done: false, lastNotified: '' },
+            { id: 'td-3', title: 'Plan top 3 priorities for today', cat: 'Work', prio: 2, time: '09:30', done: false, lastNotified: '' },
+            { id: 'td-4', title: 'Wash pillowcase & clean phone screen', cat: 'Self-Care', prio: 3, time: '', done: false, lastNotified: '' }
+        ];
+    }
+}
+
+function getSkincareProgress(dateKey) {
+    ensureSkincareAndTodo();
+    dateKey = dateKey || getTodayStr();
+    const sc = appState.skincare;
+    const dayHist = sc.history[dateKey] || {};
+    const bySlot = {};
+    let total = 0, done = 0;
+    ['morning', 'evening', 'night'].forEach(slot => {
+        const steps = sc.routines[slot] || [];
+        const sDone = steps.filter(st => dayHist[st.id] === true).length;
+        bySlot[slot] = { done: sDone, total: steps.length, pct: steps.length ? Math.round((sDone / steps.length) * 100) : 0 };
+        total += steps.length;
+        done += sDone;
+    });
+    return { done, total, pct: total ? Math.round((done / total) * 100) : 0, bySlot };
+}
+
+function getTodoProgress() {
+    ensureSkincareAndTodo();
+    const list = appState.todoList || [];
+    const done = list.filter(x => x.done === true).length;
+    const total = list.length;
+    return { done, total, pct: total ? Math.round((done / total) * 100) : 0 };
+}
+
+function renderSkincareDashCard() {
+    const sub = document.getElementById('scDashSub');
+    if (!sub) return;
+    const sp = getSkincareProgress(getTodayStr());
+    const tp = getTodoProgress();
+    const allDone = sp.done + tp.done;
+    const allTotal = sp.total + tp.total;
+    const allPct = allTotal ? Math.round((allDone / allTotal) * 100) : 0;
+
+    const gLabel = appState.skincare.gender === 'male' ? 'Male' : 'Female';
+    const tObj = SKIN_TYPES.find(t => t.id === appState.skincare.skinType) || SKIN_TYPES[0];
+    sub.textContent = `${gLabel} (${tObj.label} Skin) • Skincare ${sp.done}/${sp.total} • To-Do ${tp.done}/${tp.total}`;
+    document.getElementById('scDashText').textContent = `${allDone} / ${allTotal} completed today`;
+    document.getElementById('scDashPct').textContent = `${allPct}%`;
+    document.getElementById('scDashBar').style.width = `${allPct}%`;
+}
+
+function setSkinGender(g) {
+    ensureSkincareAndTodo();
+    appState.skincare.gender = g;
+    saveData();
+    renderSkincarePage();
+    renderSkincareDashCard();
+}
+
+function setSkinType(t) {
+    ensureSkincareAndTodo();
+    appState.skincare.skinType = t;
+    saveData();
+    renderSkincarePage();
+    renderSkincareDashCard();
+}
+
+function toggleSkinConcern(c) {
+    ensureSkincareAndTodo();
+    const arr = appState.skincare.concerns;
+    const idx = arr.indexOf(c);
+    if (idx >= 0) arr.splice(idx, 1);
+    else arr.push(c);
+    saveData();
+    renderSkincarePage();
+}
+
+function applyRecommendedSkincare(confirmFirst) {
+    ensureSkincareAndTodo();
+    const sc = appState.skincare;
+    const gLabel = sc.gender === 'male' ? 'Male' : 'Female';
+    const tLabel = (SKIN_TYPES.find(x => x.id === sc.skinType) || SKIN_TYPES[0]).label;
+    const applyNow = () => {
+        sc.routines = buildRecommendedSkincare(sc.gender, sc.skinType, sc.concerns);
+        saveData();
+        renderSkincarePage();
+        renderSkincareDashCard();
+        notify({ type: 'success', title: 'Skincare routine updated!', message: `Tailored for ${gLabel} • ${tLabel} skin` });
+    };
+    if (confirmFirst) {
+        confirmDo(`Generate fresh Morning, Evening & Night routines for ${gLabel} (${tLabel} skin)?`, applyNow, 'Apply');
+    } else {
+        applyNow();
+    }
+}
+
+function setSkinSlotTab(slot) {
+    scActiveSlot = slot;
+    renderSkincarePage();
+}
+
+function toggleSkincareStep(slot, stepId) {
+    ensureSkincareAndTodo();
+    const today = getTodayStr();
+    const sc = appState.skincare;
+    if (!sc.history[today]) sc.history[today] = {};
+    const isNowDone = !sc.history[today][stepId];
+    sc.history[today][stepId] = isNowDone;
+
+    if (isNowDone) {
+        appState.totalXp += XP_PER_ACTION;
+        playSound('check');
+        showToast(`+${XP_PER_ACTION} XP Earned!`);
+    } else {
+        appState.totalXp = Math.max(0, appState.totalXp - XP_PER_ACTION);
+        playSound('uncheck');
+    }
+
+    checkLevelUp();
+    saveData();
+    updateUI();
+    renderSkincarePage();
+
+    if (isNowDone) {
+        const prog = getSkincareProgress(today);
+        const slotProg = prog.bySlot[slot];
+        if (slotProg && slotProg.total > 0 && slotProg.done === slotProg.total) {
+            setTimeout(() => playSound('complete'), 220);
+            const sInfo = SKIN_SLOTS.find(x => x.id === slot);
+            notify({ type: 'level', title: `${sInfo ? sInfo.label : 'Routine'} Complete!`, message: 'Your skin will thank you for the consistency.' });
+        }
+    }
+}
+
+function addCustomSkincareStep() {
+    ensureSkincareAndTodo();
+    const nameEl = document.getElementById('scStepNameInput');
+    const slotEl = document.getElementById('scStepSlotInput');
+    const noteEl = document.getElementById('scStepNoteInput');
+    const name = (nameEl.value || '').trim();
+    const slot = slotEl.value || 'morning';
+    const note = (noteEl.value || '').trim();
+
+    if (!name) return showToast('Please enter a skincare step or product name!', true);
+
+    appState.skincare.routines[slot] = appState.skincare.routines[slot] || [];
+    appState.skincare.routines[slot].push({
+        id: 'sc-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
+        name,
+        note: note || 'Custom skincare step',
+        tag: 'Custom'
+    });
+
+    nameEl.value = '';
+    noteEl.value = '';
+    saveData();
+    renderSkincarePage();
+    renderSkincareDashCard();
+    notify({ type: 'success', title: 'Step added', message: `Added "${name}" to ${slot} routine` });
+}
+
+function deleteSkincareStep(slot, stepId) {
+    ensureSkincareAndTodo();
+    confirmDo('Remove this step from your skincare routine?', () => {
+        const sc = appState.skincare;
+        sc.routines[slot] = (sc.routines[slot] || []).filter(s => s.id !== stepId);
+        const today = getTodayStr();
+        if (sc.history[today] && sc.history[today][stepId]) {
+            delete sc.history[today][stepId];
+            appState.totalXp = Math.max(0, appState.totalXp - XP_PER_ACTION);
+        }
+        saveData();
+        updateUI();
+        renderSkincarePage();
+        notify({ type: 'info', title: 'Step removed' });
+    }, 'Remove');
+}
+
+function setSkinSlotReminder(slot, on, timeVal) {
+    ensureSkincareAndTodo();
+    if (on === true && 'Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+    }
+    const rem = appState.skincare.reminders[slot];
+    if (!rem) return;
+    if (typeof on === 'boolean') rem.on = on;
+    if (timeVal) rem.time = timeVal;
+    saveData();
+}
+
+// ---------- Daily To-Do List Functions ----------
+function setTodoFilter(f) {
+    todoFilter = f;
+    renderSkincarePage();
+}
+
+function addTodoItem() {
+    ensureSkincareAndTodo();
+    const titleEl = document.getElementById('todoTitleInput');
+    const catEl = document.getElementById('todoCatInput');
+    const prioEl = document.getElementById('todoPrioInput');
+    const remEl = document.getElementById('todoRemInput');
+
+    const title = (titleEl.value || '').trim();
+    if (!title) return showToast('Please enter a To-Do task!', true);
+
+    appState.todoList.unshift({
+        id: 'td-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
+        title,
+        cat: catEl.value || 'Personal',
+        prio: parseInt(prioEl.value, 10) || 2,
+        time: remEl.value || '',
+        done: false,
+        lastNotified: ''
+    });
+
+    titleEl.value = '';
+    remEl.value = '';
+    saveData();
+    updateUI();
+    renderSkincarePage();
+    notify({ type: 'task', title: 'To-Do added', message: title });
+}
+
+function toggleTodoItem(id) {
+    ensureSkincareAndTodo();
+    const item = appState.todoList.find(x => x.id === id);
+    if (!item) return;
+    item.done = !item.done;
+    if (item.done) {
+        appState.totalXp += XP_PER_ACTION;
+        playSound('check');
+        showToast(`Task done! +${XP_PER_ACTION} XP`);
+    } else {
+        appState.totalXp = Math.max(0, appState.totalXp - XP_PER_ACTION);
+        playSound('uncheck');
+    }
+    checkLevelUp();
+    saveData();
+    updateUI();
+    renderSkincarePage();
+
+    if (item.done && appState.todoList.length > 0 && appState.todoList.every(x => x.done)) {
+        setTimeout(() => playSound('complete'), 220);
+        notify({ type: 'level', title: 'All To-Do Tasks Complete!', message: 'You cleared your entire checklist!' });
+    }
+}
+
+function deleteTodoItem(id) {
+    ensureSkincareAndTodo();
+    confirmDo('Delete this To-Do task?', () => {
+        const item = appState.todoList.find(x => x.id === id);
+        if (item && item.done) appState.totalXp = Math.max(0, appState.totalXp - XP_PER_ACTION);
+        appState.todoList = appState.todoList.filter(x => x.id !== id);
+        saveData();
+        updateUI();
+        renderSkincarePage();
+        notify({ type: 'info', title: 'To-Do deleted' });
+    }, 'Delete');
+}
+
+function clearCompletedTodos() {
+    ensureSkincareAndTodo();
+    if (!appState.todoList.some(x => x.done)) return notify({ type: 'info', title: 'No completed tasks to clear' });
+    confirmDo('Remove all completed tasks from your To-Do list?', () => {
+        appState.todoList = appState.todoList.filter(x => !x.done);
+        saveData();
+        updateUI();
+        renderSkincarePage();
+        notify({ type: 'info', title: 'Cleared completed tasks' });
+    }, 'Clear');
+}
+
+function checkSkincareAndTodoReminders() {
+    ensureSkincareAndTodo();
+    const now = new Date(), t = getTodayStr(), curTime = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
+    const sc = appState.skincare;
+    let changed = false;
+
+    SKIN_SLOTS.forEach(s => {
+        const r = sc.reminders[s.id];
+        if (r && r.on && r.last !== t && r.time === curTime) {
+            r.last = t;
+            changed = true;
+            notify({ type: 'info', title: `${s.label} Reminder`, message: `Time for your ${s.short.toLowerCase()} skincare steps!`, duration: 8000 });
+            playSound('complete');
+            if ('Notification' in window && Notification.permission === 'granted') {
+                try { new Notification('Nexus Skincare', { body: `Time for your ${s.label}!` }); } catch (e) {}
+            }
+        }
+    });
+
+    (appState.todoList || []).forEach(td => {
+        if (!td.done && td.time && td.lastNotified !== t && td.time === curTime) {
+            td.lastNotified = t;
+            changed = true;
+            notify({ type: 'task', title: 'To-Do Reminder', message: td.title, duration: 8000 });
+            playSound('complete');
+            if ('Notification' in window && Notification.permission === 'granted') {
+                try { new Notification('Nexus To-Do', { body: td.title }); } catch (e) {}
+            }
+        }
+    });
+
+    if (changed) saveData();
+}
+
+function renderSkincarePage() {
+    ensureSkincareAndTodo();
+    const sc = appState.skincare;
+    const today = getTodayStr();
+    const dayHist = sc.history[today] || {};
+    const prog = getSkincareProgress(today);
+    const tdProg = getTodoProgress();
+
+    const gLabel = sc.gender === 'male' ? 'Male' : 'Female';
+    const tObj = SKIN_TYPES.find(t => t.id === sc.skinType) || SKIN_TYPES[0];
+    const cCount = sc.concerns.length;
+
+    const dtEl = document.getElementById('skincareDateText');
+    if (dtEl) dtEl.textContent = `${gLabel} • ${tObj.label} Skin • ${cCount} Concern${cCount === 1 ? '' : 's'} Selected`;
+
+    document.getElementById('scTotalPct').textContent = `${prog.pct}%`;
+    document.getElementById('scTotalBar').style.width = `${prog.pct}%`;
+    document.getElementById('scTotalCount').textContent = `${prog.done} / ${prog.total} steps done today`;
+
+    const mB = prog.bySlot.morning, eB = prog.bySlot.evening, nB = prog.bySlot.night;
+    document.getElementById('scSlotBreakdown').textContent = `${mB.done}/${mB.total} • ${eB.done}/${eB.total} • ${nB.done}/${nB.total}`;
+    document.getElementById('scProfileBadge').textContent = `${gLabel} • ${tObj.label} Skin`;
+
+    document.getElementById('tdTotalPct').textContent = `${tdProg.pct}%`;
+    document.getElementById('tdTotalBar').style.width = `${tdProg.pct}%`;
+    document.getElementById('tdTotalCount').textContent = `${tdProg.done} / ${tdProg.total} tasks done`;
+
+    // Render Gender, Skin Type & Concerns selectors
+    document.getElementById('scGenderRow').innerHTML = SKIN_GENDERS.map(g =>
+        `<span class="skin-chip ${sc.gender === g.id ? 'active' : ''}" onclick="setSkinGender('${g.id}')">${g.label}</span>`
+    ).join('');
+
+    document.getElementById('scTypeRow').innerHTML = SKIN_TYPES.map(t =>
+        `<span class="skin-chip ${sc.skinType === t.id ? 'active' : ''}" onclick="setSkinType('${t.id}')">${t.label}</span>`
+    ).join('');
+
+    document.getElementById('scConcernsRow').innerHTML = SKIN_CONCERNS.map(c =>
+        `<span class="skin-chip concern ${sc.concerns.includes(c.id) ? 'active' : ''}" onclick="toggleSkinConcern('${c.id}')">${c.label}</span>`
+    ).join('');
+
+    // Render Slot Filter Tabs
+    const slotTabs = [
+        ['all', `All (${prog.done}/${prog.total})`],
+        ['morning', `Morning (${mB.done}/${mB.total})`],
+        ['evening', `Evening (${eB.done}/${eB.total})`],
+        ['night', `Night (${nB.done}/${nB.total})`]
+    ];
+    document.getElementById('scSlotTabs').innerHTML = slotTabs.map(([k, lbl]) =>
+        `<button type="button" class="tab-btn ${scActiveSlot === k ? 'active' : ''}" onclick="setSkinSlotTab('${k}')">${lbl}</button>`
+    ).join('');
+
+    // Render Morning, Evening & Night Routine Cards
+    const visibleSlots = scActiveSlot === 'all' ? SKIN_SLOTS : SKIN_SLOTS.filter(s => s.id === scActiveSlot);
+    document.getElementById('scRoutinesContainer').innerHTML = visibleSlots.map(s => {
+        const steps = sc.routines[s.id] || [];
+        const sp = prog.bySlot[s.id];
+        const rem = sc.reminders[s.id] || { on: false, time: s.defTime };
+        const rowsHtml = steps.length ? steps.map((st, idx) => {
+            const done = dayHist[st.id] === true;
+            return `
+                <div class="habit-row ${done ? 'completed' : ''}" style="border-left: 3px solid ${s.color};">
+                    <div class="custom-checkbox ${done ? 'checked' : ''}" onclick="toggleSkincareStep('${s.id}', '${st.id}')">${done ? '✓' : ''}</div>
+                    <div class="habit-info">
+                        <h3>Step ${idx + 1}: ${esc(st.name)}</h3>
+                        <p>
+                            <span class="task-tag" style="--tc:${s.color};">${esc(st.tag || s.short)}</span>
+                            <span class="habit-xp">+${XP_PER_ACTION} XP</span>
+                            ${st.note ? `<span>${esc(st.note)}</span>` : ''}
+                        </p>
+                    </div>
+                    <div class="task-row-actions">
+                        <button class="action-btn btn-delete" style="opacity:0.75;" onclick="deleteSkincareStep('${s.id}', '${st.id}')" title="Delete step">${ICON_TRASH}</button>
+                    </div>
+                </div>`;
+        }).join('') : `<div class="task-empty">No steps in ${s.label} yet. Add one above or click "Apply Recommended Routine".</div>`;
+
+        return `
+            <div class="skin-slot-card">
+                <div class="skin-slot-head">
+                    <div class="skin-slot-title">
+                        <span class="pill" style="color:${s.color};">${s.short.toUpperCase()}</span>
+                        <span>${s.label}</span>
+                        <span style="font-size: 12px; color: var(--text-muted);">(${sp.done}/${sp.total} • ${sp.pct}%)</span>
+                    </div>
+                    <div class="skin-rem-box">
+                        <span>Reminder</span>
+                        <input type="time" value="${esc(rem.time || s.defTime)}" onchange="setSkinSlotReminder('${s.id}', undefined, this.value)">
+                        <label class="switch" style="transform: scale(0.85);">
+                            <input type="checkbox" ${rem.on ? 'checked' : ''} onchange="setSkinSlotReminder('${s.id}', this.checked)">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="mini-bar" style="margin-bottom: 12px;"><div style="width:${sp.pct}%; background:${s.color};"></div></div>
+                <div class="habit-list">${rowsHtml}</div>
+            </div>`;
+    }).join('');
+
+    // Render Daily To-Do List
+    const allTodos = (appState.todoList || []).slice().sort((a, b) => (a.done === b.done ? (a.prio || 2) - (b.prio || 2) : (a.done ? 1 : -1)));
+    const pendingCount = allTodos.filter(x => !x.done).length;
+    const doneCount = allTodos.filter(x => x.done).length;
+    const tdTabs = [
+        ['all', `All (${allTodos.length})`],
+        ['pending', `Pending (${pendingCount})`],
+        ['done', `Done (${doneCount})`]
+    ];
+    document.getElementById('todoFilterTabs').innerHTML = tdTabs.map(([k, lbl]) =>
+        `<button type="button" class="tab-btn ${todoFilter === k ? 'active' : ''}" onclick="setTodoFilter('${k}')">${lbl}</button>`
+    ).join('');
+
+    const filteredTodos = allTodos.filter(x => todoFilter === 'pending' ? !x.done : (todoFilter === 'done' ? x.done : true));
+    document.getElementById('todoListContainer').innerHTML = filteredTodos.length ? filteredTodos.map(td => {
+        const pInfo = TASK_PRIOS[td.prio || 2] || TASK_PRIOS[2];
+        return `
+            <div class="habit-row ${td.done ? 'completed' : ''}">
+                <div class="custom-checkbox ${td.done ? 'checked' : ''}" onclick="toggleTodoItem('${td.id}')">${td.done ? '✓' : ''}</div>
+                <div class="habit-info">
+                    <h3>${esc(td.title)}</h3>
+                    <p>
+                        <span class="task-tag" style="--tc:var(--neon-cyan);">${esc(td.cat || 'Personal')}</span>
+                        <span class="task-tag" style="--tc:${pInfo.color};">${pInfo.label}</span>
+                        ${td.time ? `<span class="task-tag" style="--tc:var(--neon-purple);">Reminder ${esc(td.time)}</span>` : ''}
+                        <span class="habit-xp">+${XP_PER_ACTION} XP</span>
+                    </p>
+                </div>
+                <div class="task-row-actions">
+                    <button class="action-btn btn-delete" style="opacity:0.75;" onclick="deleteTodoItem('${td.id}')" title="Delete task">${ICON_TRASH}</button>
+                </div>
+            </div>`;
+    }).join('') : `<div class="task-empty">${todoFilter === 'done' ? 'No completed tasks yet.' : 'No tasks here! Add a custom To-Do above.'}</div>`;
+}
+
+// Initialize Mandatory Login Gate & Skincare / To-Do on page load
+window.addEventListener('load', () => {
+    ensureSkincareAndTodo();
+    renderSkincareDashCard();
+    enforceAuthGate();
+});
+</script>
+
 <script src="native.js"></script>
 </body>
 </html>

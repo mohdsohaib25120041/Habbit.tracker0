@@ -1,5 +1,5 @@
 -- ============================================================
--- NEXUS: ek hi file. Poora copy karo -> Supabase SQL Editor me paste -> Run
+-- NEXUS / GOALFORCE: ek hi file. Poora copy karo -> Supabase SQL Editor me paste -> Run
 -- ============================================================
 
 -- ============================================================
@@ -132,16 +132,17 @@ returns boolean language sql stable security definer set search_path = public as
   select coalesce((select banned from public.profiles where user_id = auth.uid()), false);
 $$;
 
--- every new account gets a profile row automatically
+-- every new account gets a profile row automatically (and email changes stay synced)
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
-  insert into public.profiles (user_id, email) values (new.id, new.email) on conflict (user_id) do nothing;
+  insert into public.profiles (user_id, email) values (new.id, new.email)
+    on conflict (user_id) do update set email = excluded.email;
   return new;
 end;
 $$;
 drop trigger if exists on_auth_user_created on auth.users;
-create trigger on_auth_user_created after insert on auth.users for each row execute function public.handle_new_user();
+create trigger on_auth_user_created after insert or update of email on auth.users for each row execute function public.handle_new_user();
 
 -- profiles for accounts that already exist
 insert into public.profiles (user_id, email, created_at)
@@ -328,6 +329,7 @@ returns void language plpgsql security definer set search_path = public as $$
 begin
   if not public.is_admin() then raise exception 'not allowed' using errcode = '42501'; end if;
   update public.feedback set status = left(new_status, 20) where id = f_id;
+  insert into public.admin_log (admin_id, action, detail) values (auth.uid(), 'feedback_status', jsonb_build_object('id', f_id, 'status', left(new_status, 20)));
 end;
 $$;
 
