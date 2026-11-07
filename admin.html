@@ -83,7 +83,7 @@ const CFG = Object.assign({ url: '', key: '' }, window.GOALFORCE_CONFIG || {});
 const READY = /^(https:\/\/|http:\/\/localhost)/.test(CFG.url) && CFG.key.length > 20;
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-const THEME_IDS = ['dark', 'light', 'ocean', 'forest', 'sunset', 'royal', 'rose', 'cyber', 'gold', 'aurora', 'legend'];
+const THEME_IDS = ['dark', 'light', 'ocean', 'forest', 'sunset', 'royal', 'rose', 'cyber', 'gold', 'aurora', 'legend', 'vintage'];
 let session = null, tab = 'dashboard', usersState = { q: '', page: 0, total: 0, rows: [] };
 const PAGE = 25;
 

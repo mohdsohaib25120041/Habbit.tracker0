@@ -1054,149 +1054,7 @@
             .skin-grid { grid-template-columns: 1fr; }
         }
     </style>
-
-<!-- ================= SMART FEATURES STYLING (FLAT / ORIGINAL UI) ================= -->
-<style>
-.energy-bar {
-    display: flex;
-    gap: 8px;
-    background: rgba(var(--tint), 0.03);
-    border: 1px solid var(--border-color);
-    padding: 6px;
-    border-radius: 14px;
-    margin-bottom: 20px;
-}
-.energy-pill {
-    flex: 1;
-    padding: 8px 12px;
-    border-radius: 10px;
-    border: 1px solid transparent;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-muted);
-    background: transparent;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-}
-.energy-pill:hover {
-    color: var(--text-main);
-}
-.energy-pill.active.medium {
-    background: rgba(0, 240, 255, 0.12);
-    border-color: var(--neon-cyan);
-    color: var(--neon-cyan);
-}
-.energy-pill.active.high {
-    background: rgba(255, 204, 0, 0.12);
-    border-color: var(--neon-yellow);
-    color: var(--neon-yellow);
-}
-.energy-pill.active.low {
-    background: rgba(0, 255, 136, 0.12);
-    border-color: var(--neon-green);
-    color: var(--neon-green);
-}
-
-/* Focus Timer Display */
-.focus-timer-box {
-    padding: 24px 20px;
-    text-align: center;
-}
-.focus-timer-clock {
-    font-size: 56px;
-    font-weight: 700;
-    color: var(--text-main);
-    letter-spacing: 2px;
-    margin: 8px 0;
-}
-.focus-status-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: var(--neon-cyan);
-    background: rgba(0, 240, 255, 0.1);
-    border: 1px solid var(--neon-cyan);
-}
-
-/* Template Cards */
-.template-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 12px;
-}
-.template-card {
-    padding: 16px;
-    border-radius: 16px;
-    background: rgba(var(--tint), 0.03);
-    border: 1px solid var(--border-color);
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-.template-card:hover {
-    border-color: var(--neon-cyan);
-    background: rgba(var(--tint), 0.05);
-}
-
-/* Leaderboard & Podium (Clean) */
-.leaderboard-podium {
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    gap: 12px;
-    margin: 20px 0 25px;
-    height: 160px;
-}
-.podium-box {
-    flex: 1;
-    max-width: 100px;
-    border-radius: 14px 14px 4px 4px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    padding-bottom: 12px;
-    font-weight: 700;
-    font-size: 13px;
-    border: 1px solid var(--border-color);
-}
-.podium-first {
-    height: 140px;
-    background: rgba(255, 204, 0, 0.15);
-    border-color: var(--neon-yellow);
-    color: var(--neon-yellow);
-}
-.podium-second {
-    height: 110px;
-    background: rgba(0, 240, 255, 0.12);
-    border-color: var(--neon-cyan);
-    color: var(--neon-cyan);
-}
-.podium-third {
-    height: 85px;
-    background: rgba(176, 38, 255, 0.12);
-    border-color: var(--neon-purple);
-    color: var(--neon-purple);
-}
-
-/* Share Player Card (Clean) */
-.player-share-card {
-    border-radius: 20px;
-    padding: 24px;
-    background: rgba(var(--tint), 0.03);
-    border: 1px solid var(--border-color);
-    text-align: center;
-    max-width: 380px;
-    margin: 0 auto;
-}
-</style>
-
+    <link rel="stylesheet" href="features.css">
 </head>
 <body class="auth-locked">
     <noscript><div style="padding:40px;text-align:center;font-family:system-ui,sans-serif;">GoalForce needs JavaScript. Please turn it on in your browser settings.</div></noscript>
@@ -1245,6 +1103,14 @@
 
             <button type="button" class="btn-primary" id="gateSubmitBtn" style="width: 100%; padding: 12px; font-size: 15px;" onclick="submitGateAuth()">Log In to GoalForce</button>
 
+            <div style="text-align: right; margin: -6px 0 10px;"><a href="#" id="gateForgotLink" style="color: var(--neon-cyan); font-size: 13px;" onclick="setGateMode('forgot'); return false;">Forgot password?</a></div>
+            <div id="gateSocial" class="fx-gate-social">
+                <div class="fx-gate-or"><span>or continue with</span></div>
+                <div class="fx-gate-btns">
+                    <button type="button" class="fx-oauth" onclick="fxOAuth('google')"><svg viewBox="0 0 24 24" width="18" height="18"><path fill="#EA4335" d="M12 10.2v3.9h5.5c-.2 1.3-1.6 3.8-5.5 3.8-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.7 2.9 14.6 2 12 2 6.9 2 2.8 6.1 2.8 11.2S6.9 20.4 12 20.4c5.3 0 8.8-3.7 8.8-9 0-.6-.1-1.1-.2-1.6H12z"/></svg>Google</button>
+                    <button type="button" class="fx-oauth" onclick="fxOAuth('apple')"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.9-.8-3.1-.8-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.6.8 1.2 1.7 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8s1.8.8 3.1.8c1.3 0 2.1-1.2 2.9-2.3.9-1.3 1.3-2.6 1.3-2.7 0 0-2.7-1-2.7-4.2zM14.1 5.6c.7-.8 1.1-2 1-3.1-1 0-2.2.7-2.9 1.5-.6.7-1.2 1.9-1 3 1.1.1 2.2-.6 2.9-1.4z"/></svg>Apple</button>
+                </div>
+            </div>
             <div id="gateMsg" class="setting-desc" style="margin-top: 12px; min-height: 20px; text-align: center; font-weight: 500;" aria-live="polite"></div>
         </div>
     </div>
@@ -1283,19 +1149,6 @@
                 <svg class="icon" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
                 Achievements
             </a>
-            <a href="#" class="nav-item" onclick="changePage('focus', this); return false;">
-                <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                Focus Mode
-            </a>
-            <a href="#" class="nav-item" onclick="changePage('goals', this); return false;">
-                <svg class="icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                Life Goals
-            </a>
-            <a href="#" class="nav-item" onclick="changePage('social', this); return false;">
-                <svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                Social &amp; Share
-            </a>
-
         </div>
         <a href="#" class="nav-item" onclick="openSearch(); return false;">
             <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -1336,56 +1189,6 @@
             </header>
 
             <div id="bootBanners" style="display: flex; flex-direction: column; gap: 12px;"></div>
-
-            <!-- 1. ENERGY MODE SWITCHER -->
-            <div class="energy-bar">
-                <button type="button" class="energy-pill active medium" id="energyBtnMed" onclick="setEnergyMode('medium')">🔋 Balanced</button>
-                <button type="button" class="energy-pill high" id="energyBtnHigh" onclick="setEnergyMode('high')">⚡ High Energy</button>
-                <button type="button" class="energy-pill low" id="energyBtnLow" onclick="setEnergyMode('low')">🪫 Low Energy (Micro-Habits)</button>
-            </div>
-
-            <!-- 2. COMEBACK MODE (STREAK RESCUE SHIELD) -->
-            <div id="comebackShieldCard" class="bd-banner warn" style="display: none; margin-bottom: 18px;">
-                <div style="flex: 1;">
-                    <div class="bd-banner-title" style="color: var(--neon-yellow);">🛡️ Comeback Shield Active</div>
-                    <div class="bd-banner-text">Streak tootne se bachane ke liye bas 1 micro-win habit check karein. Momentum barkarar rahega!</div>
-                </div>
-                <button class="btn-primary" onclick="claimComebackShield()">Rescue Streak</button>
-            </div>
-
-            <!-- 3. ADAPTIVE MISSIONS -->
-            <section class="panel" style="margin-bottom: 20px;">
-                <div class="panel-header" style="margin-bottom: 12px;">
-                    <div>
-                        <h2 class="panel-title">🎯 Adaptive Missions (Today)</h2>
-                        <div class="setting-desc">Personalized daily missions tailored to your routine. Earn bonus Reality XP!</div>
-                    </div>
-                    <span class="pill" style="color: var(--neon-yellow);" id="adaptiveXpBonus">+45 Bonus XP</span>
-                </div>
-                <div class="habit-list" id="adaptiveMissionsList"></div>
-            </section>
-
-            <!-- 4. REALITY XP CHARACTER ATTRIBUTE SHEET -->
-            <section class="panel" style="margin-bottom: 20px;">
-                <div class="panel-header" style="margin-bottom: 12px;">
-                    <div>
-                        <h2 class="panel-title">🦾 Reality XP (Life Attributes)</h2>
-                        <div class="setting-desc">Habits, water aur deep work se apne real-life attributes level up karein.</div>
-                    </div>
-                    <span style="font-size: 13px; font-weight: 700; color: var(--neon-cyan);" id="charTitle">Novice Achiever</span>
-                </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;" id="realityXpGrid"></div>
-            </section>
-
-            <!-- 5. PERSONAL INSIGHTS (AI) -->
-            <section class="panel" style="margin-bottom: 20px;">
-                <div class="panel-header" style="margin-bottom: 8px;">
-                    <h2 class="panel-title">🧠 Personal Insights (AI)</h2>
-                    <span class="task-tag" style="--tc: var(--neon-green);">Live Analysis</span>
-                </div>
-                <div id="aiInsightsBox" style="font-size: 14px; line-height: 1.6; color: var(--text-muted);"></div>
-            </section>
-
 
             <section class="stats-grid" data-sec="stats">
                 <div class="stat-card">
@@ -1511,6 +1314,7 @@
                         <span style="font-size: 12px; color: var(--text-muted);">Scroll right to see all days. Tap today or yesterday to toggle.</span>
                     </div>
                     <div style="display: flex; gap: 12px; align-items: center; font-size: 11px; color: var(--text-muted); flex-wrap: wrap;">
+                        <button class="btn-primary" style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" onclick="FX.downloadTracker()" title="Download this month's tracker as an image"><svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download</button>
                         <span style="display: inline-flex; align-items: center; gap: 5px;"><span style="width: 12px; height: 12px; border-radius: 4px; background: rgba(0, 255, 136, 0.25); border: 1px solid var(--neon-green); display: inline-block;"></span>Done</span>
                         <span style="display: inline-flex; align-items: center; gap: 5px;"><span style="width: 12px; height: 12px; border-radius: 4px; background: rgba(255, 51, 102, 0.22); border: 1px solid var(--neon-red); display: inline-block;"></span>Missed</span>
                         <span style="display: inline-flex; align-items: center; gap: 5px;"><span style="width: 12px; height: 12px; border-radius: 4px; border: 2px solid var(--neon-purple); display: inline-block;"></span>Today</span>
@@ -1526,15 +1330,14 @@
         <div id="page-habits" class="page-section">
             <header class="top-header">
                 <h1>My Habits</h1>
+                <button class="btn-primary" onclick="fxOpenTemplates()">Habit Templates</button>
             </header>
+            <div id="fxEnergyNote"></div>
             <div class="workspace" style="grid-template-columns: 1fr;">
                 <section class="panel">
                     <div class="panel-header">
                         <h2 class="panel-title">Today's Checklist</h2>
-                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                            <button class="btn-primary ghost" onclick="openTemplateModal()">📦 Habit Templates</button>
-                            <button class="btn-primary" onclick="openModal()">+ Add Habit</button>
-                        </div>
+                        <button class="btn-primary" onclick="openModal()">+ Add Habit</button>
                     </div>
                     <div class="habit-list" id="habitList"></div>
                 </section>
@@ -1873,103 +1676,7 @@
             </section>
         </div>
 
-    
-        <!-- FOCUS MODE (POMODORO & AMBIENT AUDIO) -->
-        <div id="page-focus" class="page-section">
-            <header class="top-header">
-                <div>
-                    <h1>🧘 Focus Mode</h1>
-                    <p>Deep work focus timer with built-in ambient audio</p>
-                </div>
-            </header>
-            <section class="panel">
-                <div class="focus-timer-box">
-                    <span class="focus-status-badge" id="focusStateText">READY TO FLOW</span>
-                    <div class="focus-timer-clock" id="focusTimerText">25:00</div>
-                    <div style="display: flex; justify-content: center; gap: 12px; margin: 20px 0;">
-                        <button class="btn-primary" id="focusStartBtn" onclick="toggleFocusTimer()">Start Focus</button>
-                        <button class="btn-primary ghost" onclick="resetFocusTimer()">Reset</button>
-                    </div>
-
-                    <div class="quick-row" style="justify-content: center; margin-bottom: 24px;">
-                        <span class="quick-chip" onclick="setFocusPreset(25)">25m Pomodoro</span>
-                        <span class="quick-chip" onclick="setFocusPreset(50)">50m Deep Work</span>
-                        <span class="quick-chip" onclick="setFocusPreset(15)">15m Sprint</span>
-                        <span class="quick-chip" onclick="setFocusPreset(5)">5m Reset</span>
-                    </div>
-
-                    <div class="setting-title" style="margin-bottom: 8px;">Ambient Background Sounds (100% Offline)</div>
-                    <div class="quick-row" style="justify-content: center;">
-                        <span class="quick-chip" onclick="toggleAmbientAudio('binaural')">🎵 40Hz Gamma Focus</span>
-                        <span class="quick-chip" onclick="toggleAmbientAudio('rain')">🌧️ Digital Rain</span>
-                        <span class="quick-chip" onclick="toggleAmbientAudio('cafe')">☕ Ambient Hum</span>
-                        <span class="quick-chip" onclick="stopAmbientAudio()">🔇 Mute Audio</span>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <!-- LIFE GOALS PAGE -->
-        <div id="page-goals" class="page-section">
-            <header class="top-header">
-                <div>
-                    <h1>🎯 Life Goals &amp; Milestones</h1>
-                    <p>Connect daily habits to your long-term goals</p>
-                </div>
-                <button class="btn-primary" onclick="openNewGoalModal()">+ Create Goal</button>
-            </header>
-            <section class="panel">
-                <div id="goalsContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px;"></div>
-            </section>
-        </div>
-
-        <!-- SOCIAL & SHARE PAGE -->
-        <div id="page-social" class="page-section">
-            <header class="top-header">
-                <div>
-                    <h1>🎴 Share &amp; Social Arena</h1>
-                    <p>Share progress cards, join challenges and view the leaderboard</p>
-                </div>
-            </header>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px;">
-                <!-- Player Progress Card -->
-                <section class="panel" style="text-align: center;">
-                    <h2 class="panel-title" style="margin-bottom: 14px;">Your Progress Card</h2>
-                    <div class="player-share-card" id="holoPlayerCard">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                            <div style="font-weight: 700; color: var(--neon-cyan);">GoalForce ACHIEVER</div>
-                            <span class="pill" style="color: var(--neon-yellow);" id="holoRankPill">GOLD LEAGUE</span>
-                        </div>
-                        <div style="font-size: 36px; margin: 10px 0;">⚡</div>
-                        <h3 style="font-size: 22px; font-weight: 700;" id="holoUserName">Achiever</h3>
-                        <div style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;" id="holoLevelText">Level 1 • 0 XP</div>
-                        <div style="display: flex; justify-content: space-around; background: rgba(var(--tint),0.04); border: 1px solid var(--border-color); padding: 12px; border-radius: 14px; margin-bottom: 16px;">
-                            <div><div style="font-size: 11px; color: var(--text-muted);">STREAK</div><div style="font-size: 18px; font-weight: 700; color: var(--neon-green);" id="holoStreak">1 Days</div></div>
-                            <div><div style="font-size: 11px; color: var(--text-muted);">HABITS</div><div style="font-size: 18px; font-weight: 700; color: var(--neon-cyan);" id="holoDone">0 Done</div></div>
-                            <div><div style="font-size: 11px; color: var(--text-muted);">RATE</div><div style="font-size: 18px; font-weight: 700; color: var(--neon-purple);" id="holoRate">100%</div></div>
-                        </div>
-                        <button class="btn-primary" style="width: 100%; padding: 12px;" onclick="sharePlayerCard()">📲 Share Progress Card</button>
-                    </div>
-                </section>
-
-                <!-- League Leaderboard -->
-                <section class="panel">
-                    <h2 class="panel-title" style="margin-bottom: 6px;">🏆 League Leaderboard</h2>
-                    <div class="setting-desc" style="margin-bottom: 12px;">Top Achievers this week (Gold Tier)</div>
-                    <div class="leaderboard-podium">
-                        <div class="podium-box podium-second"><div>🥈 #2</div><div style="font-size: 11px;">Rohan S.</div><div style="font-size: 10px;">840 XP</div></div>
-                        <div class="podium-box podium-first"><div>👑 #1</div><div style="font-size: 11px;">You</div><div style="font-size: 10px;">1,120 XP</div></div>
-                        <div class="podium-box podium-third"><div>🥉 #3</div><div style="font-size: 11px;">Aanya K.</div><div style="font-size: 10px;">710 XP</div></div>
-                    </div>
-                    <div id="leagueRosterList" class="habit-list">
-                        <div class="habit-row"><div class="habit-info" style="margin-left:0;"><h3>⚡ 21-Day Early Riser Challenge</h3><p>Active with 142 members</p></div><button class="btn-primary ghost" onclick="notify({type:'success', title:'Joined Challenge!', message:'Early Riser habit activated.'})">Join</button></div>
-                        <div class="habit-row"><div class="habit-info" style="margin-left:0;"><h3>💧 30-Day Hydration Hero</h3><p>Active with 310 members</p></div><button class="btn-primary ghost" onclick="notify({type:'success', title:'Joined Challenge!', message:'Hydration tracker set.'})">Join</button></div>
-                    </div>
-                </section>
-            </div>
-        </div>
-</main>
+    </main>
 
     <nav class="mobile-nav">
         <div class="mobile-nav-item" data-pages="dashboard" onclick="changePage('dashboard', this)">
@@ -1995,11 +1702,6 @@
         <div class="more-item" onclick="closeMore(); openSearch()"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Search</div>
         <div class="more-item" onclick="changePage('water', null)"><svg class="icon" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>Water</div>
         <div class="more-item" onclick="changePage('achievements', null)"><svg class="icon" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>Achievements</div>
-        <div class="more-item" onclick="changePage('focus', null)"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Focus Mode</div>
-        <div class="more-item" onclick="changePage('goals', null)"><svg class="icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Life Goals</div>
-        <div class="more-item" onclick="changePage('social', null)"><svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Social &amp; Share</div>
-        <div class="more-item" onclick="closeMore(); openTemplateModal()"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Habit Templates</div>
-
         <div class="more-item" onclick="changePage('settings', null)"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>Settings</div>
         <div class="more-item" style="color: var(--neon-red);" onclick="closeMore(); appMandatoryLogout()"><svg class="icon" style="color: var(--neon-red);" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log Out</div>
     </div>
@@ -2036,6 +1738,10 @@
             <div class="input-group">
                 <label>Times per day (e.g. 8 for 8 glasses of water)</label>
                 <input type="number" id="habitTargetInput" min="1" max="99" value="1">
+            </div>
+            <div class="input-group">
+                <label>Effort (Energy Mode uses this)</label>
+                <select id="habitEffortInput"><option value="easy">Easy - fine even on low energy</option><option value="normal" selected>Normal</option><option value="hard">Hard - needs high energy</option></select>
             </div>
             <div class="input-group">
                 <label>Colour</label>
@@ -2810,7 +2516,7 @@
         function renderPrefsPanels() {
             if (!$('prefsPanel')) return;
             const rest = WEEKDAY_ORDER.map(d => `<button type="button" class="weekday-btn ${appState.restDays.includes(d) ? 'selected' : ''}" onclick="toggleRestDay(${d})">${WEEKDAY_NAMES[d]}</button>`).join('');
-            const secs = [['stats', 'Top stat cards'], ['water', 'Water card'], ['skincare', 'Skincare & Daily To-Do'], ['overview', 'Daily Overview'], ['tasks', "Today's Tasks"], ['tracker', 'Monthly Tracker'], ['statistics', 'Statistics graph'], ['weekly', 'Weekly Performance'], ['monthly', 'Monthly Performance']];
+            const secs = [['smart', 'Smart Today (missions & energy)'], ['stats', 'Top stat cards'], ['water', 'Water card'], ['skincare', 'Skincare & Daily To-Do'], ['overview', 'Daily Overview'], ['tasks', "Today's Tasks"], ['tracker', 'Monthly Tracker'], ['statistics', 'Statistics graph'], ['weekly', 'Weekly Performance'], ['monthly', 'Monthly Performance']];
             const sw = (checked, fn) => `<label class="switch"><input type="checkbox" ${checked ? 'checked' : ''} onchange="${fn}"><span class="switch-slider"></span></label>`;
             const line = (title, desc, ctl) => `<div class="setting-line" style="margin-bottom: 14px;"><div><div class="setting-title">${title}</div><div class="setting-desc">${desc}</div></div>${ctl}</div>`;
             const usual = habitTimes().reduce((a, x) => a.concat(x.all), []);
@@ -3001,6 +2707,7 @@
                 h.history = obj(h.history);
                 Object.keys(h.history).forEach(k => { if (!date(k)) delete h.history[k]; else h.history[k] = h.history[k] === true; });
                 h.completed = !!h.history[getTodayStr()];
+                h.effort = ['easy', 'normal', 'hard'].includes(h.effort) ? h.effort : 'normal';
                 h.target = Math.min(100, Math.max(1, Math.floor(Number(h.target) || 1)));
                 h.days = Array.isArray(h.days) ? [...new Set(h.days.map(Number).filter(n => Number.isInteger(n) && n >= 0 && n <= 6))] : [];
                 h.counts = obj(h.counts);
@@ -3270,7 +2977,8 @@
             { id: 'cyber',  name: 'Cyber',  level: 7,  bg: '#000000', card: 'rgba(10,10,10,0.85)', a: '#39ff14', b: '#ff00e5' },
             { id: 'gold',   name: 'Gold',   level: 8,  bg: '#0f0b02', card: 'rgba(36,28,6,0.85)',  a: '#facc15', b: '#f59e0b' },
             { id: 'aurora', name: 'Aurora', level: 9,  bg: '#03131a', card: 'rgba(8,34,40,0.85)',  a: '#2dd4bf', b: '#a78bfa' },
-            { id: 'legend', name: 'Legend', level: 10, bg: '#120405', card: 'rgba(40,10,12,0.85)', a: '#ef4444', b: '#facc15' }
+            { id: 'legend', name: 'Legend', level: 10, bg: '#120405', card: 'rgba(40,10,12,0.85)', a: '#ef4444', b: '#facc15' },
+            { id: 'vintage', name: 'Vintage', level: 11, bg: '#590907', card: 'rgba(32,3,3,0.78)', a: '#E8D2B5', b: '#A5A79B' }
         ];
         THEMES.forEach(t => { if (t.bg) t.sw = [t.bg, t.a]; });
 
@@ -3503,6 +3211,7 @@
                 const days = habit.days && habit.days.length ? WEEKDAY_ORDER.filter(d => habit.days.includes(d)).map(d => WEEKDAY_NAMES[d]).join(' ') : '';
                 const row = document.createElement('div');
                 row.className = `habit-row ${habit.completed ? 'completed' : ''}`;
+                row.dataset.effort = habit.effort || 'normal';
                 if (!sched) row.style.opacity = '0.5';
                 if (habit.color) row.style.borderLeft = `3px solid ${habit.color}`;
                 row.innerHTML = `
@@ -4219,7 +3928,7 @@
             const t = item.task;
             const done = t.done[item.date] === true;
             return `
-                <div class="habit-row ${done ? 'completed' : ''}">
+                <div class="habit-row ${done ? 'completed' : ''}" data-prio="${t.prio || 2}">
                     <div class="custom-checkbox ${done ? 'checked' : ''}" onclick="toggleTask('${t.id}', '${item.date}')">${done ? '✓' : ''}</div>
                     <div class="habit-info">
                         <h3>${escapeHtml(t.title)}</h3>
@@ -4551,6 +4260,7 @@
             const days = h && h.days && h.days.length ? h.days : [0, 1, 2, 3, 4, 5, 6];
             document.querySelectorAll('#habitDays .weekday-btn').forEach(b => b.classList.toggle('selected', days.includes(Number(b.dataset.day))));
             document.getElementById('habitTargetInput').value = h && h.target ? h.target : 1;
+            document.getElementById('habitEffortInput').value = (h && h.effort) || 'normal';
             document.querySelectorAll('#habitColors .color-dot').forEach(c => c.classList.toggle('selected', !!h && h.color === c.dataset.c));
         }
         function pickHabitColor(el) {
@@ -4580,13 +4290,14 @@
             const days = sel.length === 7 || sel.length === 0 ? [] : sel;
             const target = Math.max(1, Math.min(99, parseInt(document.getElementById('habitTargetInput').value, 10) || 1));
             const cd = document.querySelector('#habitColors .color-dot.selected'), color = cd ? cd.dataset.c : '';
+            const effort = ['easy', 'normal', 'hard'].includes(document.getElementById('habitEffortInput').value) ? document.getElementById('habitEffortInput').value : 'normal';
 
             if (id) {
                 const habit = appState.habits.find(h => h.id === id);
-                Object.assign(habit, { name, days, target, color });
+                Object.assign(habit, { name, days, target, color, effort });
                 showToast("Habit updated!");
             } else {
-                appState.habits.push({ id: Date.now().toString(), name, xp: HABIT_XP, completed: false, history: {}, days, target, color, counts: {} });
+                appState.habits.push({ id: Date.now().toString(), name, xp: HABIT_XP, completed: false, history: {}, days, target, color, counts: {}, effort });
                 showToast("New habit created!");
             }
 
@@ -4696,6 +4407,9 @@ html[data-ui="cyber"]{--r:0px;--rs:0px;--rb:0px;--rcb:0px;--bw:2px;--sf:"Courier
 html[data-ui="gold"]{--r:10px;--rs:8px;--rb:8px;--sf:Georgia,serif;--ls:.03em;--sh:0 0 0 1px rgba(250,204,21,.35),0 10px 30px rgba(0,0,0,.4);--card-bg:linear-gradient(180deg,rgba(250,204,21,.13),rgba(36,28,6,.9));--sw:250px}
 html[data-ui="aurora"]{--r:28px;--rs:18px;--rb:16px;--sf:"Segoe UI",system-ui,sans-serif;--sw:84px;--sbm:14px;--sbr:34px;--glass-blur:blur(28px) saturate(1.6);--sh:0 8px 40px rgba(167,139,250,.2);--card-bg:linear-gradient(135deg,rgba(45,212,191,.16),rgba(167,139,250,.14))}
 html[data-ui="legend"]{--r:0px;--rs:0px;--rb:0px;--rcb:3px;--bw:2px;--sf:"Arial Black",Impact,sans-serif;--tt:uppercase;--ls:.1em;--sw:230px;--glass-blur:none}
+
+html[data-ui="vintage"]{--r:18px;--rs:12px;--rb:12px;--rcb:10px;--bw:1px;--sf:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;--ls:.015em;--sh:0 10px 30px rgba(0,0,0,.35),inset 0 0 0 1px rgba(232,210,181,.10);--card-bg:linear-gradient(160deg,rgba(232,210,181,.08),rgba(32,3,3,.86));--glass-blur:blur(10px);--tint:232,210,181;--text-main:#F4E8D6;--text-muted:#C2B5A0;--neon-green:#A5A79B;--neon-yellow:#E8D2B5;--neon-red:#F28B76}
+html[data-ui="vintage"] body{background-image:radial-gradient(circle at 12% 18%,rgba(232,210,181,.10),transparent 30%),radial-gradient(circle at 88% 82%,rgba(165,167,155,.10),transparent 32%)}
 
 html[data-ui] *{font-family:var(--sf)}
 html[data-ui] :is(.panel,.stat-card,.calendar-section,.user-profile){border-radius:var(--r);border-width:var(--bw);background:var(--card-bg,var(--bg-card));box-shadow:var(--sh)}
@@ -4827,7 +4541,7 @@ html[data-ui="legend"] :is(.panel,.stat-card,.calendar-section){clip-path:polygo
     dark: 'Deep black focus', light: 'Clean and bright', ocean: 'Calm deep blue',
     forest: 'Organic nature', sunset: 'Warm evening glow', royal: 'Elegant purple',
     rose: 'Soft and romantic', cyber: 'Neon terminal style', gold: 'Rich golden shine',
-    aurora: 'Glassy northern lights', legend: 'Bold and fierce'
+    aurora: 'Glassy northern lights', legend: 'Bold and fierce', vintage: 'Warm burgundy, cream and sage'
   };
   const BASE = {
     dark:  { bg: '#000000', a: '#00f0ff', b: '#b026ff' },
@@ -5234,7 +4948,7 @@ async function handleAuthHash() {
     try { const u = await cloudFetch('/auth/v1/user', { token: tok.access_token }); tok.user = { id: u.id, email: u.email }; }
     catch (e) { return notify({ type: 'error', title: 'Link problem', message: e.message }); }
     if (p.get('type') === 'recovery') { cloud.recovery = tok; $('recoveryModal').classList.add('show'); return; }
-    cloudSetSession(tok); notify({ type: 'success', title: 'Email confirmed', message: 'You are logged in.' });
+    cloudSetSession(tok); notify({ type: 'success', title: p.get('provider_token') ? 'Signed in' : 'Email confirmed', message: 'You are logged in.' });
 }
 
 // ---------- account panel ----------
@@ -6186,364 +5900,7 @@ window.addEventListener('load', () => {
 });
 </script>
 
-
-    <!-- HABIT TEMPLATES MODAL -->
-    <div class="modal-overlay" id="templateModal" onclick="if (event.target === this) closeTemplateModal()">
-        <div class="modal-content" style="max-width: 520px; max-height: 85vh; overflow-y: auto;">
-            <h2 style="margin-bottom: 6px;">📦 Habit Templates Library</h2>
-            <div class="setting-desc" style="margin-bottom: 16px;">Pick a proven routine to auto-populate your habits in 1-click.</div>
-            <div class="template-grid">
-                <div class="template-card" onclick="applyHabitTemplate('student')"><h3 style="color:var(--neon-cyan); margin-bottom:4px;">🎓 Student &amp; Exam Prep</h3><div class="setting-desc">Deep Study Block, Flashcard Revision, Sleep 8 Hours, Daily Walk</div></div>
-                <div class="template-card" onclick="applyHabitTemplate('fitness')"><h3 style="color:var(--neon-green); margin-bottom:4px;">🏋️ Fitness &amp; Gym</h3><div class="setting-desc">Daily Workout, 120g Protein, 3L Water, 15m Full Body Stretch</div></div>
-                <div class="template-card" onclick="applyHabitTemplate('morning')"><h3 style="color:var(--neon-yellow); margin-bottom:4px;">☀️ Morning Routine</h3><div class="setting-desc">Wake Up at 6 AM, Glass of Warm Water, Meditation, Make Your Bed</div></div>
-                <div class="template-card" onclick="applyHabitTemplate('coding')"><h3 style="color:var(--neon-purple); margin-bottom:4px;">💻 Developer &amp; Deep Work</h3><div class="setting-desc">Solve 1 DSA Problem, Clean Codebase, 45m Pomodoro, Screen Break</div></div>
-            </div>
-            <button class="btn-primary" style="width: 100%; margin-top: 16px; background: transparent; border-color: var(--text-muted); color: var(--text-muted);" onclick="closeTemplateModal()">Cancel</button>
-        </div>
-    </div>
-
-<script>
-/* ================= SMART FEATURES LOGIC (FLAT / NATIVE UI) ================= */
-
-let currentEnergy = 'medium';
-const MICRO_HABIT_SCALES = {
-    'Wake Up Early': 'Stretch in bed & take 3 deep breaths (1 min)',
-    'Make Your Bed': 'Tidy pillow and straighten blanket (30 sec)',
-    'Morning Walk': 'Walk 100 steps inside room or balcony',
-    'Daily Workout': '10 squats or 30-sec wall sit',
-    'Eat Enough Protein': 'Drink 1 glass of milk / protein snack',
-    'Learn a New Skill': 'Read 1 short article / watch 1 tip video',
-    'Deep Work Session': 'Clean desk & organize 1 file (2 min)',
-    'Practice Coding': 'Review 1 snippet or syntax note',
-    'No Junk Food': 'Drink a big glass of water before snacking',
-    'Sleep 8 Hours': 'Put phone away 15 min before bed'
-};
-
-function setEnergyMode(mode) {
-    currentEnergy = mode;
-    const medBtn = document.getElementById('energyBtnMed');
-    const highBtn = document.getElementById('energyBtnHigh');
-    const lowBtn = document.getElementById('energyBtnLow');
-    if (medBtn) medBtn.classList.toggle('active', mode === 'medium');
-    if (highBtn) highBtn.classList.toggle('active', mode === 'high');
-    if (lowBtn) lowBtn.classList.toggle('active', mode === 'low');
-    renderHabits();
-    notify({
-        type: 'info',
-        title: `Energy Mode: ${mode.toUpperCase()}`,
-        message: mode === 'low' ? 'Showing 2-minute micro-habits so you never break momentum!' : (mode === 'high' ? 'High Energy mode activated!' : 'Balanced mode.')
-    });
-}
-
-function claimComebackShield() {
-    const shieldCard = document.getElementById('comebackShieldCard');
-    if (shieldCard) shieldCard.style.display = 'none';
-    appState.totalXp += 15;
-    saveData();
-    updateUI();
-    playSound('achievement');
-    notify({ type: 'success', title: 'Comeback Shield Claimed!', message: '+15 XP added. Streak is protected!' });
-}
-
-function generateDailyMissions() {
-    return [
-        { id: 'm-1', title: '🌅 Fast Starter', desc: 'Tick 2 habits before 12 PM', xp: 15, done: getTotalCompleted() >= 2, claimed: false },
-        { id: 'm-2', title: '💧 Hydro Sprint', desc: 'Log at least 1,000 ml water today', xp: 20, done: (typeof waterStats === 'function' && waterStats().total >= 1000), claimed: false },
-        { id: 'm-3', title: '🧘 Laser Focus', desc: 'Complete 1 Focus Mode session', xp: 25, done: ((appState.focusMinutes || 0) >= 20), claimed: false }
-    ];
-}
-
-function renderAdaptiveMissions() {
-    const box = document.getElementById('adaptiveMissionsList');
-    if (!box) return;
-    if (!appState.dailyMissions) appState.dailyMissions = generateDailyMissions();
-    
-    box.innerHTML = appState.dailyMissions.map(m => `
-        <div class="habit-row ${m.done ? 'completed' : ''}">
-            <div class="custom-checkbox ${m.done ? 'checked' : ''}">${m.done ? '✓' : ''}</div>
-            <div class="habit-info">
-                <h3>${m.title}</h3>
-                <p><span>${m.desc}</span> <span class="habit-xp">+${m.xp} Reality XP</span></p>
-            </div>
-            ${m.done && !m.claimed ? `<button class="btn-primary" onclick="claimMissionXp('${m.id}')">Claim</button>` : (m.claimed ? `<span class="pill" style="color: var(--neon-green);">CLAIMED</span>` : '')}
-        </div>
-    `).join('');
-}
-
-function claimMissionXp(id) {
-    const m = (appState.dailyMissions || []).find(x => x.id === id);
-    if (!m || m.claimed) return;
-    m.claimed = true;
-    appState.totalXp += m.xp;
-    saveData();
-    updateUI();
-    renderAdaptiveMissions();
-    playSound('achievement');
-    notify({ type: 'xp', title: 'Mission Bonus Claimed!', message: `+${m.xp} Reality XP earned.` });
-}
-
-function calculateRealityAttributes() {
-    const total = appState.totalXp || 0;
-    const waterMl = typeof waterStats === 'function' ? (waterStats().total || 0) : 0;
-    const focusMin = appState.focusMinutes || 0;
-    const streak = typeof getCurrentStreak === 'function' ? getCurrentStreak() : 1;
-    const skinProg = typeof getSkincareProgress === 'function' ? getSkincareProgress().pct : 50;
-
-    return [
-        { name: 'Physical Vitality', icon: '⚡', val: Math.min(100, Math.round((waterMl / 2500) * 50 + (total * 0.08))), color: 'var(--neon-green)' },
-        { name: 'Mental Focus', icon: '🧠', val: Math.min(100, Math.round(focusMin * 1.5 + (total * 0.06))), color: 'var(--neon-cyan)' },
-        { name: 'Iron Discipline', icon: '🥋', val: Math.min(100, Math.round(streak * 7 + (total * 0.05))), color: 'var(--neon-purple)' },
-        { name: 'Wellness & Glow', icon: '✨', val: Math.min(100, Math.round((skinProg * 0.6) + 30)), color: 'var(--neon-yellow)' }
-    ];
-}
-
-function renderRealityAttributes() {
-    const box = document.getElementById('realityXpGrid');
-    if (!box) return;
-    const attrs = calculateRealityAttributes();
-    box.innerHTML = attrs.map(a => `
-        <div style="background: rgba(var(--tint), 0.03); border: 1px solid var(--border-color); padding: 14px; border-radius: 14px;">
-            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 6px;">
-                <span>${a.icon} ${a.name}</span>
-                <span style="color: ${a.color};">${a.val} / 100</span>
-            </div>
-            <div class="mini-bar"><div style="width: ${a.val}%; background: ${a.color};"></div></div>
-        </div>
-    `).join('');
-}
-
-function renderAiInsights() {
-    const box = document.getElementById('aiInsightsBox');
-    if (!box) return;
-    const streak = typeof getCurrentStreak === 'function' ? getCurrentStreak() : 1;
-    const rate = typeof getMonthlyPercent === 'function' ? getMonthlyPercent() : 50;
-    if (streak >= 3) {
-        box.innerHTML = `🔥 <b>Strong Momentum:</b> Consistency score is <b>${rate}%</b>. Morning completions have 2x higher retention. Keep your morning routine protected!`;
-    } else {
-        box.innerHTML = `💡 <b>Consistency Tip:</b> On busy days, switch to <b>Low Energy (Micro-Habits)</b> so you complete 2-minute versions and keep your streak safe!`;
-    }
-}
-
-// Focus Mode Web Audio Engine
-let focusTimerInterval = null, focusSecondsLeft = 25 * 60, isFocusRunning = false;
-let audioEngineCtx = null, ambientOsc = null, ambientGain = null;
-
-function setFocusPreset(mins) {
-    if (isFocusRunning) toggleFocusTimer();
-    focusSecondsLeft = mins * 60;
-    updateFocusDisplay();
-}
-
-function updateFocusDisplay() {
-    const m = Math.floor(focusSecondsLeft / 60), s = focusSecondsLeft % 60;
-    const el = document.getElementById('focusTimerText');
-    if (el) el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-}
-
-function toggleFocusTimer() {
-    const btn = document.getElementById('focusStartBtn');
-    const stateEl = document.getElementById('focusStateText');
-    if (isFocusRunning) {
-        clearInterval(focusTimerInterval);
-        isFocusRunning = false;
-        if (btn) btn.textContent = 'Resume Focus';
-        if (stateEl) stateEl.textContent = 'PAUSED';
-        stopAmbientAudio();
-    } else {
-        isFocusRunning = true;
-        if (btn) btn.textContent = 'Pause Focus';
-        if (stateEl) stateEl.textContent = 'DEEP FLOW ACTIVE';
-        focusTimerInterval = setInterval(() => {
-            if (focusSecondsLeft > 0) {
-                focusSecondsLeft--;
-                updateFocusDisplay();
-            } else {
-                clearInterval(focusTimerInterval);
-                isFocusRunning = false;
-                appState.focusMinutes = (appState.focusMinutes || 0) + 25;
-                appState.totalXp += 25;
-                saveData();
-                updateUI();
-                playSound('complete');
-                spawnConfetti(70);
-                notify({ type: 'level', title: 'Focus Session Complete!', message: '+25 Reality XP added to Mental Focus.' });
-                resetFocusTimer();
-            }
-        }, 1000);
-    }
-}
-
-function resetFocusTimer() {
-    clearInterval(focusTimerInterval);
-    isFocusRunning = false;
-    focusSecondsLeft = 25 * 60;
-    updateFocusDisplay();
-    stopAmbientAudio();
-    const btn = document.getElementById('focusStartBtn');
-    const stateEl = document.getElementById('focusStateText');
-    if (btn) btn.textContent = 'Start Focus';
-    if (stateEl) stateEl.textContent = 'READY TO FLOW';
-}
-
-function toggleAmbientAudio(type) {
-    stopAmbientAudio();
-    try {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        audioEngineCtx = new AC();
-        ambientGain = audioEngineCtx.createGain();
-        ambientGain.gain.setValueAtTime(0.04, audioEngineCtx.currentTime);
-
-        if (type === 'binaural') {
-            ambientOsc = audioEngineCtx.createOscillator();
-            ambientOsc.type = 'sine';
-            ambientOsc.frequency.setValueAtTime(216, audioEngineCtx.currentTime);
-            ambientOsc.connect(ambientGain);
-        } else {
-            const bufferSize = audioEngineCtx.sampleRate * 2;
-            const noiseBuffer = audioEngineCtx.createBuffer(1, bufferSize, audioEngineCtx.sampleRate);
-            const output = noiseBuffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
-            ambientOsc = audioEngineCtx.createBufferSource();
-            ambientOsc.buffer = noiseBuffer;
-            ambientOsc.loop = true;
-            ambientOsc.connect(ambientGain);
-        }
-        ambientGain.connect(audioEngineCtx.destination);
-        ambientOsc.start();
-        notify({ type: 'info', title: 'Audio Playing', message: `${type.toUpperCase()} ambient stream started.` });
-    } catch (e) {}
-}
-
-function stopAmbientAudio() {
-    if (ambientOsc) { try { ambientOsc.stop(); } catch(e){} ambientOsc = null; }
-    if (audioEngineCtx) { try { audioEngineCtx.close(); } catch(e){} audioEngineCtx = null; }
-}
-
-// Life Goals Manager
-function renderGoalsPage() {
-    const box = document.getElementById('goalsContainer');
-    if (!box) return;
-    if (!appState.lifeGoals) {
-        appState.lifeGoals = [
-            { id: 'g-1', title: 'Master Full-Stack & AI', target: '2026-12-31', progress: 65, milestones: ['Build Habit Tracker', 'Integrate Cloud Auth', 'Deploy PWA'] },
-            { id: 'g-2', title: 'Peak Aesthetic Fitness', target: '2026-11-30', progress: 40, milestones: ['3L Water Daily', 'Workout 5x Week', 'Hit 120g Protein'] }
-        ];
-    }
-    box.innerHTML = appState.lifeGoals.map(g => `
-        <div class="panel" style="padding: 18px; margin-bottom: 0;">
-            <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 16px; margin-bottom: 8px;">
-                <span>${g.title}</span>
-                <span style="color: var(--neon-cyan);">${g.progress}%</span>
-            </div>
-            <div class="mini-bar" style="height: 8px; margin-bottom: 12px;"><div style="width: ${g.progress}%; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));"></div></div>
-            <div class="setting-desc" style="margin-bottom: 10px;">Target: ${g.target}</div>
-            <div style="font-size: 12px; line-height: 1.8;">
-                ${g.milestones.map(m => `<div>✔ ${m}</div>`).join('')}
-            </div>
-        </div>
-    `).join('');
-}
-
-function openNewGoalModal() {
-    const title = prompt('Enter your Life Goal title:');
-    if (!title) return;
-    if (!appState.lifeGoals) appState.lifeGoals = [];
-    appState.lifeGoals.push({
-        id: 'g-' + Date.now(),
-        title,
-        target: '2026-12-31',
-        progress: 10,
-        milestones: ['First milestone set', 'Daily execution']
-    });
-    saveData();
-    renderGoalsPage();
-    notify({ type: 'success', title: 'Goal Created!', message: title });
-}
-
-// Habit Templates
-function openTemplateModal() { 
-    const el = document.getElementById('templateModal');
-    if (el) el.classList.add('show'); 
-}
-function closeTemplateModal() { 
-    const el = document.getElementById('templateModal');
-    if (el) el.classList.remove('show'); 
-}
-function applyHabitTemplate(type) {
-    const packs = {
-        student: ['Deep Study Block (45m)', 'Flashcard Revision', 'Sleep 8 Hours', 'Daily Walk'],
-        fitness: ['Daily Workout', '120g Protein', 'Drink 3L Water', '15m Full Body Stretch'],
-        morning: ['Wake Up at 6 AM', 'Glass of Warm Water', '10m Meditation', 'Make Your Bed'],
-        coding:  ['Solve 1 DSA Problem', 'Clean Codebase', '45m Pomodoro Sprint', 'Eye Rest Break']
-    };
-    const selected = packs[type] || [];
-    selected.forEach(name => {
-        if (!appState.habits.some(h => h.name.toLowerCase() === name.toLowerCase())) {
-            appState.habits.push({ id: Date.now().toString() + Math.random().toString(36).slice(2, 4), name, xp: 5, completed: false, history: {}, days: [], target: 1, counts: {} });
-        }
-    });
-    saveData();
-    renderHabits();
-    renderCalendar();
-    updateUI();
-    closeTemplateModal();
-    notify({ type: 'success', title: 'Template Pack Applied!', message: `${selected.length} habits added to your routine.` });
-}
-
-// Social & Share Helper
-function renderSocialPage() {
-    const u = (typeof getActiveAuthUser === 'function' ? getActiveAuthUser() : null) || { name: 'Achiever' };
-    const nameEl = document.getElementById('holoUserName');
-    if (nameEl) nameEl.textContent = u.name;
-    const lvlEl = document.getElementById('holoLevelText');
-    if (lvlEl) lvlEl.textContent = `Level ${appState.currentLevel || 1} • ${appState.totalXp || 0} Reality XP`;
-    const streakEl = document.getElementById('holoStreak');
-    if (streakEl) streakEl.textContent = `${getCurrentStreak()} Days`;
-    const doneEl = document.getElementById('holoDone');
-    if (doneEl) doneEl.textContent = `${getTotalCompleted()} Done`;
-}
-
-function sharePlayerCard() {
-    if (navigator.share) {
-        navigator.share({
-            title: 'GoalForce Achiever Card',
-            text: `I am on a ${getCurrentStreak()}-day habit streak with ${appState.totalXp} XP on GoalForce!`,
-            url: window.location.href
-        }).catch(() => {});
-    } else {
-        if (navigator.clipboard) navigator.clipboard.writeText(`I am on a ${getCurrentStreak()}-day habit streak with ${appState.totalXp} Reality XP on GoalForce!`);
-        notify({ type: 'success', title: 'Copied to Clipboard!', message: 'Share with friends on WhatsApp or Instagram.' });
-    }
-}
-
-// Hook into changePage and UI updates
-if (typeof updateUI === 'function') {
-    const _oldUpdateUI = updateUI;
-    updateUI = function() {
-        _oldUpdateUI();
-        renderAdaptiveMissions();
-        renderRealityAttributes();
-        renderAiInsights();
-    };
-}
-
-if (typeof changePage === 'function') {
-    const _oldChangePage = changePage;
-    changePage = function(p, el) {
-        _oldChangePage(p, el);
-        if (p === 'focus') resetFocusTimer();
-        if (p === 'goals') renderGoalsPage();
-        if (p === 'social') renderSocialPage();
-    };
-}
-
-window.addEventListener('load', () => {
-    renderAdaptiveMissions();
-    renderRealityAttributes();
-    renderAiInsights();
-});
-</script>
-
+<script src="features.js"></script>
 <script src="native.js"></script>
 </body>
 </html>

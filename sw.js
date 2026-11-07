@@ -1,7 +1,7 @@
 // GoalForce service worker: works offline, and always tries to fetch the newest page first.
-// When you publish a new version, change CACHE (for example goalforce-v3) so old files are dropped.
-const CACHE = 'goalforce-v3';
-const ASSETS = ['./', 'index.html', 'admin.html', 'privacy.html', 'config.js', 'native.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png'];
+// When you publish a new version, change CACHE (for example goalforce-v4) so old files are dropped.
+const CACHE = 'goalforce-v4';
+const ASSETS = ['./', 'index.html', 'admin.html', 'privacy.html', 'config.js', 'native.js', 'features.js', 'features.css', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => Promise.all(ASSETS.map(a => c.add(a).catch(() => {})))).then(() => self.skipWaiting()));
@@ -16,7 +16,7 @@ self.addEventListener('fetch', e => {
   const u = new URL(req.url);
   if (req.method !== 'GET' || u.origin !== self.location.origin || u.pathname.includes('/rest/v1/') || u.pathname.includes('/auth/v1/')) return;
   const isNav = req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html');
-  const isNetworkFirst = isNav || u.pathname.endsWith('/config.js');
+  const isNetworkFirst = isNav || u.pathname.endsWith('/config.js') || u.pathname.endsWith('/features.js') || u.pathname.endsWith('/features.css');
   if (isNetworkFirst) {
     e.respondWith(
       fetch(req).then(res => {
