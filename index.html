@@ -1744,6 +1744,10 @@
                 <select id="habitEffortInput"><option value="easy">Easy - fine even on low energy</option><option value="normal" selected>Normal</option><option value="hard">Hard - needs high energy</option></select>
             </div>
             <div class="input-group">
+                <label>Habit stacking: do this right after...</label>
+                <select id="habitAfterInput"><option value="">None (stand-alone habit)</option></select>
+            </div>
+            <div class="input-group">
                 <label>Colour</label>
                 <div class="weekday-row" id="habitColors">
                     <span class="color-dot" data-c="#00f0ff" style="background:#00f0ff;" onclick="pickHabitColor(this)"></span>
@@ -2516,7 +2520,7 @@
         function renderPrefsPanels() {
             if (!$('prefsPanel')) return;
             const rest = WEEKDAY_ORDER.map(d => `<button type="button" class="weekday-btn ${appState.restDays.includes(d) ? 'selected' : ''}" onclick="toggleRestDay(${d})">${WEEKDAY_NAMES[d]}</button>`).join('');
-            const secs = [['smart', 'Smart Today (missions & energy)'], ['stats', 'Top stat cards'], ['water', 'Water card'], ['skincare', 'Skincare & Daily To-Do'], ['overview', 'Daily Overview'], ['tasks', "Today's Tasks"], ['tracker', 'Monthly Tracker'], ['statistics', 'Statistics graph'], ['weekly', 'Weekly Performance'], ['monthly', 'Monthly Performance']];
+            const secs = [['smart', 'Smart Today (missions & energy)'], ['steps', 'Step counter'], ['stats', 'Top stat cards'], ['water', 'Water card'], ['skincare', 'Skincare & Daily To-Do'], ['overview', 'Daily Overview'], ['tasks', "Today's Tasks"], ['tracker', 'Monthly Tracker'], ['statistics', 'Statistics graph'], ['weekly', 'Weekly Performance'], ['monthly', 'Monthly Performance']];
             const sw = (checked, fn) => `<label class="switch"><input type="checkbox" ${checked ? 'checked' : ''} onchange="${fn}"><span class="switch-slider"></span></label>`;
             const line = (title, desc, ctl) => `<div class="setting-line" style="margin-bottom: 14px;"><div><div class="setting-title">${title}</div><div class="setting-desc">${desc}</div></div>${ctl}</div>`;
             const usual = habitTimes().reduce((a, x) => a.concat(x.all), []);
@@ -3211,14 +3215,14 @@
                 const days = habit.days && habit.days.length ? WEEKDAY_ORDER.filter(d => habit.days.includes(d)).map(d => WEEKDAY_NAMES[d]).join(' ') : '';
                 const row = document.createElement('div');
                 row.className = `habit-row ${habit.completed ? 'completed' : ''}`;
-                row.dataset.effort = habit.effort || 'normal';
+                row.dataset.effort = habit.effort || 'normal'; row.dataset.id = habit.id;
                 if (!sched) row.style.opacity = '0.5';
                 if (habit.color) row.style.borderLeft = `3px solid ${habit.color}`;
                 row.innerHTML = `
                     <div class="custom-checkbox ${habit.completed ? 'checked' : ''}" ${sched ? `onclick="toggleHabit('${habit.id}')"` : ''}>${habit.completed ? '✓' : ''}</div>
                     <div class="habit-info">
                         <h3>${escapeHtml(habit.name)}</h3>
-                        ${habitMeta(tgt, cnt, days, sched)}
+                        ${habitMeta(tgt, cnt, days, sched)}${window.fxStackTag ? fxStackTag(habit) : ''}
                     </div>
                     ${tgt > 1 && sched ? `<div class="task-row-actions" style="margin-right: 8px;"><button class="icon-btn" onclick="bumpCount('${habit.id}', -1)" title="One less">-</button><button class="icon-btn" onclick="bumpCount('${habit.id}', 1)" title="One more">+</button></div>` : ''}
                     <div class="habit-actions">
@@ -4261,6 +4265,7 @@
             document.querySelectorAll('#habitDays .weekday-btn').forEach(b => b.classList.toggle('selected', days.includes(Number(b.dataset.day))));
             document.getElementById('habitTargetInput').value = h && h.target ? h.target : 1;
             document.getElementById('habitEffortInput').value = (h && h.effort) || 'normal';
+            if (window.fxFillAfter) fxFillAfter(h);
             document.querySelectorAll('#habitColors .color-dot').forEach(c => c.classList.toggle('selected', !!h && h.color === c.dataset.c));
         }
         function pickHabitColor(el) {
@@ -4292,12 +4297,13 @@
             const cd = document.querySelector('#habitColors .color-dot.selected'), color = cd ? cd.dataset.c : '';
             const effort = ['easy', 'normal', 'hard'].includes(document.getElementById('habitEffortInput').value) ? document.getElementById('habitEffortInput').value : 'normal';
 
+            const after = window.fxReadAfter ? fxReadAfter(id) : '';
             if (id) {
                 const habit = appState.habits.find(h => h.id === id);
-                Object.assign(habit, { name, days, target, color, effort });
+                Object.assign(habit, { name, days, target, color, effort, after });
                 showToast("Habit updated!");
             } else {
-                appState.habits.push({ id: Date.now().toString(), name, xp: HABIT_XP, completed: false, history: {}, days, target, color, counts: {}, effort });
+                appState.habits.push({ id: Date.now().toString(), name, xp: HABIT_XP, completed: false, history: {}, days, target, color, counts: {}, effort, after });
                 showToast("New habit created!");
             }
 

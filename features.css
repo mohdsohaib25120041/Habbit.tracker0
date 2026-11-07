@@ -160,3 +160,25 @@ html.fx-focusing #confirmModal { z-index: 4900 !important; }
 .fx-leader { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; background: color-mix(in srgb, var(--neon-yellow) 22%, transparent); color: var(--neon-yellow); vertical-align: middle; }
 .fx-lead-msg { font-size: 14px; font-weight: 600; padding: 10px 14px; border-radius: 12px; margin-bottom: 12px; background: color-mix(in srgb, var(--neon-cyan) 8%, transparent); border: 1px solid color-mix(in srgb, var(--neon-cyan) 30%, transparent); }
 .fx-badge { margin-left: auto; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--neon-red); color: #fff; font-size: 11px; font-weight: 700; display: inline-grid; place-items: center; }
+
+/* ---------- Coach / Garden / Stacking / Calendar view ---------- */
+.fx-coach-line { margin-top: 10px; font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+.fx-coach-line b { color: var(--neon-cyan); }
+.fx-garden { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.fx-plant { border: 1px solid var(--border-color); border-radius: 16px; padding: 12px; text-align: center; background: rgba(var(--tint), .03); }
+.fx-plant .t { font-weight: 700; font-size: 14px; margin-top: 4px; word-break: break-word; } .fx-plant .s { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.fx-stack-tag { font-size: 11px; color: var(--neon-cyan); margin-top: 3px; }
+.fx-stackbox { border: 1px dashed color-mix(in srgb, var(--neon-cyan) 40%, transparent); border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; font-size: 13px; }
+.fx-chain { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+.fx-link { padding: 4px 10px; border-radius: 14px; background: rgba(var(--tint), .07); font-size: 12px; }
+.fx-link.done { background: color-mix(in srgb, var(--neon-green) 22%, transparent); color: var(--neon-green); }
+.fx-arrow { color: var(--text-muted); }
+.fx-cal-head, .fx-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.fx-cal-head { font-size: 11px; color: var(--text-muted); text-align: center; margin-bottom: 6px; }
+.fx-cal .e { display: block; }
+.fx-cal button { aspect-ratio: 1; border-radius: 10px; border: 1px solid var(--border-color); background: rgba(var(--tint), .04); color: var(--text-main); font: inherit; font-size: 13px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 2px; }
+.fx-cal button:disabled { opacity: .35; cursor: default; }
+.fx-cal button em { display: flex; gap: 2px; min-height: 5px; } .fx-cal button em i { width: 5px; height: 5px; border-radius: 50%; }
+.fx-cal button.h0 { background: color-mix(in srgb, var(--neon-red) 18%, transparent); } .fx-cal button.h1 { background: color-mix(in srgb, var(--neon-green) 20%, transparent); }
+.fx-cal button.h2 { background: color-mix(in srgb, var(--neon-green) 42%, transparent); } .fx-cal button.h3 { background: color-mix(in srgb, var(--neon-green) 68%, transparent); color: #000; }
+.fx-cal button.h4 { background: var(--neon-green); color: #000; } .fx-cal button.today { outline: 2px solid var(--neon-purple); } .fx-cal button.sel { border-color: var(--neon-cyan); box-shadow: 0 0 0 2px color-mix(in srgb, var(--neon-cyan) 40%, transparent); }

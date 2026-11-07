@@ -68,7 +68,7 @@ FX.go = function (id) {
 
 /* ================= Reality XP engine (bonus XP for real progress, no farming) ================= */
 let inEval = false, evalTimer = null, dirty = false, changed = false;
-const LBL = { perfect: 'Perfect day', water: 'Water goal reached', 'mission:comeback': 'Comeback step done' };
+const LBL = { perfect: 'Perfect day', water: 'Water goal reached', steps: 'Step goal reached', 'mission:comeback': 'Comeback step done' };
 function labelFor(k) {
     if (LBL[k]) return LBL[k];
     if (k.startsWith('mission:')) return 'Mission done';
@@ -106,6 +106,7 @@ function evaluate() {
         if (!isRestDay(d) && sched.length >= 2 && sched.every(h => h.history[d] === true)) elig.perfect = 10;
         todaysMissions().forEach(m => { if (missionDone(m, d)) elig['mission:' + m.id] = m.xp || 5; });
         const w = waterOn(d); if (w.goal > 0 && w.ml >= w.goal) elig.water = 5;
+        try { if (stepsOn(d) >= ST().goal) elig.steps = 5; } catch (e) {}
         let delta = 0; const got = [];
         changed = false;
         Object.keys(elig).forEach(k => { if (!(k in book)) { book[k] = elig[k]; delta += elig[k]; got.push(labelFor(k)); } });
@@ -278,8 +279,9 @@ function renderDash() {
             <button class="btn-primary" onclick="FX.focusStart(25)">Focus Mode</button></div>
             <div class="fx-energy"><span class="lbl">How is your energy?</span>${eb(1, 'Low')}${eb(3, 'Medium')}${eb(5, 'High')}</div>
             ${cbHtml}${rows || '<div class="fx-empty">Add a habit to get missions.</div>'}
-            <div class="fx-realxp"><span>Reality XP today: <b>+${todayXp}</b> <span class="fx-muted">(bonus for real progress, not for tapping)</span></span><span class="quick-chip" style="margin:0" onclick="FX.go('reports')">See progress</span></div>`;
+            <div class="fx-realxp"><span>Reality XP today: <b>+${todayXp}</b> <span class="fx-muted">(bonus for real progress, not for tapping)</span></span><span class="quick-chip" style="margin:0" onclick="FX.go('reports')">See progress</span></div>${coachLineHtml()}`;
         renderEnergyNote();
+        renderStepsCard();
     } catch (e) { logFx('renderDash', e); }
 }
 FX.renderDash = renderDash;
@@ -361,7 +363,7 @@ function renderReports() {
     const bars = cur.per.map(x => `<div class="c"><span>${x.pct === null ? '-' : x.pct + '%'}</span><i style="height:${x.pct === null ? 3 : Math.max(3, x.pct)}%;${x.d === today ? 'background:var(--neon-purple)' : ''}"></i><span>${DAY_NAMES[weekdayOf(x.d)].slice(0, 2)}</span></div>`).join('');
     const weekHtml = `<div class="fx-sec"><h2 class="panel-title" style="margin-bottom:6px;">Weekly Report</h2>
         <div class="task-tabs" style="margin-bottom:14px;"><button class="tab-btn ${rp.week === 0 ? 'active' : ''}" onclick="FX.rpWeek(0)">Last 7 days</button><button class="tab-btn ${rp.week === 1 ? 'active' : ''}" onclick="FX.rpWeek(1)">Previous 7 days</button></div>
-        <div class="fx-grid">${tile('Completion', cur.pct + '%', delta(cur.pct, prev.pct, ' pts'))}${tile('Habits ticked', cur.ticks, delta(cur.ticks, prev.ticks))}${tile('Tasks done', cur.tasks, delta(cur.tasks, prev.tasks))}${tile('Focus time', fmtMin(cur.focus), delta(cur.focus, prev.focus, ' min'))}${tile('Water goal days', cur.waterDays + '/7', delta(cur.waterDays, prev.waterDays))}${tile('Best day', cur.best ? DAY_NAMES[weekdayOf(cur.best.d)] + ' ' + cur.best.pct + '%' : '-', '')}</div>
+        <div class="fx-grid">${tile('Completion', cur.pct + '%', delta(cur.pct, prev.pct, ' pts'))}${tile('Habits ticked', cur.ticks, delta(cur.ticks, prev.ticks))}${tile('Tasks done', cur.tasks, delta(cur.tasks, prev.tasks))}${tile('Focus time', fmtMin(cur.focus), delta(cur.focus, prev.focus, ' min'))}${tile('Water goal days', cur.waterDays + '/7', delta(cur.waterDays, prev.waterDays))}${tile('Avg steps / day', fmtN(Math.round(days.reduce((a, d) => a + stepsOn(d), 0) / 7)), '')}${tile('Best day', cur.best ? DAY_NAMES[weekdayOf(cur.best.d)] + ' ' + cur.best.pct + '%' : '-', '')}</div>
         <div class="fx-bars">${bars}</div></div>`;
     // ----- monthly
     const base = new Date(); base.setDate(1); base.setMonth(base.getMonth() - rp.month);
@@ -391,7 +393,7 @@ FX.rpMonth = d => { FX.rp.month = Math.max(0, FX.rp.month + d); renderReports();
 FX.pages.reports = renderReports;
 
 /* ================= Goals ================= */
-const GOAL_TYPES = { streak: ['Reach a streak (days)', 'days'], xp: ['Reach total XP', 'XP'], habit: ['Do one habit N times', 'times'], ticks: ['Complete N habits in total', 'habits'], water: ['Hit water goal N days', 'days'], focus: ['Focus for N minutes', 'min'], custom: ['Custom counter', ''] };
+const GOAL_TYPES = { streak: ['Reach a streak (days)', 'days'], xp: ['Reach total XP', 'XP'], habit: ['Do one habit N times', 'times'], ticks: ['Complete N habits in total', 'habits'], water: ['Hit water goal N days', 'days'], focus: ['Focus for N minutes', 'min'], steps: ['Hit step goal N days', 'days'], custom: ['Custom counter', ''] };
 function goalProgress(g) {
     const created = g.created || TODAY(), today = TODAY(), t = Math.max(1, Number(g.target) || 1);
     let cur = 0;
@@ -400,6 +402,7 @@ function goalProgress(g) {
     else if (g.type === 'habit') { const h = appState.habits.find(x => x.id === g.habitId); cur = h ? Object.keys(h.history).filter(k => h.history[k] === true && k >= created).length : 0; }
     else if (g.type === 'ticks') cur = appState.habits.reduce((n, h) => n + Object.keys(h.history).filter(k => h.history[k] === true && k >= created).length, 0);
     else if (g.type === 'water') { for (let d = created, i = 0; d <= today && i < 800; d = dateAdd(d, 1), i++) { const w = waterOn(d); if (w.ml > 0 && w.ml >= w.goal) cur++; } }
+    else if (g.type === 'steps') { for (let d = created, i = 0; d <= today && i < 800; d = dateAdd(d, 1), i++) if (stepsOn(d) >= ST().goal) cur++; }
     else if (g.type === 'focus') cur = appState.focus.reduce((a, s) => a + (s && s.date >= created ? (Number(s.mins) || 0) : 0), 0);
     else cur = Number(g.val) || 0;
     if (g.type === 'streak' && cur > (Number(g.peak) || 0)) g.peak = cur;
@@ -1220,7 +1223,7 @@ function renderProfile() {
             <div class="fx-muted">${E(me ? me.email : 'Not logged in')}</div>
             <div class="fx-xp" style="margin:6px 0 12px;">Level ${info.level} &middot; ${E(getRank(info.level))}</div>
             <input type="file" id="fxPfFile" accept="image/*" style="display:none" onchange="FX.pfPhoto(this)">
-            <div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn-primary" onclick="byId('fxPfFile').click()">${p.dp ? 'Change photo' : 'Add photo'}</button>${p.dp ? '<button class="btn-primary" style="background:transparent;border-color:var(--neon-red);color:var(--neon-red);" onclick="FX.pfRemovePhoto()">Remove</button>' : ''}</div></div></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn-primary" onclick="byId('fxPfFile').click()">${p.dp ? 'Change photo' : 'Add photo'}</button><button class="btn-primary" onclick="FX.go('certs')">My certificates</button>${p.dp ? '<button class="btn-primary" style="background:transparent;border-color:var(--neon-red);color:var(--neon-red);" onclick="FX.pfRemovePhoto()">Remove</button>' : ''}</div></div></div>
         ${p.bio ? `<div class="fx-note" style="font-size:14px;margin-top:14px;color:var(--text-main);">${E(p.bio)}</div>` : ''}</section>
     <section class="panel"><h2 class="panel-title" style="margin-bottom:12px;">Your details</h2>
         <div class="fx-form"><div class="input-group"><label>Display name</label><input type="text" id="fxPfName" maxlength="30" value="${E(p.name)}" placeholder="${E(authName() || 'Your name')}"></div>
@@ -1344,6 +1347,439 @@ FX.downloadTracker = function () {
     }, 'image/png');
 };
 
+/* ================= Step counter (manual + live phone-sensor counting) ================= */
+function ST() {
+    const f = S(); if (!isObj(f.steps)) f.steps = {};
+    const s = f.steps;
+    s.goal = clamp(Math.round(Number(s.goal)) || 8000, 500, 100000);
+    s.stride = clamp(Math.round(Number(s.stride)) || 75, 30, 150);
+    if (!isObj(s.days)) s.days = {};
+    return s;
+}
+const stepsRaw = d => { const v = Number(ST().days[d]); return Number.isFinite(v) && v > 0 ? Math.floor(v) : 0; };
+let livePending = 0;
+const stepsOn = d => stepsRaw(d) + (d === TODAY() ? livePending : 0);
+function setSteps(d, n) {
+    n = clamp(Math.floor(Number(n)) || 0, 0, 200000);
+    const s = ST(); if (n) s.days[d] = n; else delete s.days[d];
+    Object.keys(s.days).forEach(k => { if (daysBetween(k, TODAY()) > 400) delete s.days[k]; });
+    dirty = true; saveData();
+}
+const kmOf = n => (n * ST().stride / 100000);
+const kcalOf = n => Math.round(n * 0.04);
+const stepGoalMet = d => stepsOn(d) >= ST().goal;
+function stepGoalStreak() {
+    let n = 0, d = stepGoalMet(TODAY()) ? TODAY() : dateAdd(TODAY(), -1);
+    for (let i = 0; i < 400 && stepGoalMet(d); i++) { n++; d = dateAdd(d, -1); }
+    return n;
+}
+const fmtN = n => Number(n).toLocaleString('en-US');
+
+/* ----- live counting with the phone's motion sensor (only works while the app is open) ----- */
+let live = null, stepMsg = '', wl = null;
+function flushLive() { if (livePending > 0) { const n = livePending; livePending = 0; setSteps(TODAY(), stepsRaw(TODAY()) + n); } }
+function liveTick() {
+    const t = byId('fxStepsNum'); if (t) t.textContent = fmtN(stepsOn(TODAY()));
+    const b = byId('fxStepsBar'); if (b) b.style.width = clamp(Math.round(stepsOn(TODAY()) / ST().goal * 100), 0, 100) + '%';
+    const c = byId('fxStepsCard'); if (c) renderStepsCard();
+}
+function onMotion(e) {
+    if (!live) return;
+    const a = e.accelerationIncludingGravity; if (!a || a.x == null) return;
+    live.got = true;
+    const m = Math.hypot(a.x || 0, a.y || 0, a.z || 0), now = Date.now();
+    if (!live.avg) live.avg = m;
+    live.avg += (m - live.avg) * 0.08;
+    if (m - live.avg > 1.5 && now - live.last > 300) {
+        live.last = now; livePending++; live.session++;
+        if (livePending >= 5) flushLive();
+        liveTick();
+    }
+}
+async function startLive() {
+    if (live) return;
+    if (typeof DeviceMotionEvent === 'undefined') { stepMsg = 'This browser has no motion sensor. You can still add steps by hand.'; return renderSteps(); }
+    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+        try { if (await DeviceMotionEvent.requestPermission() !== 'granted') { stepMsg = 'Motion permission was denied. Allow it in your browser settings to count steps.'; return renderSteps(); } }
+        catch (e) { stepMsg = 'Could not get motion permission.'; return renderSteps(); }
+    }
+    live = { avg: 0, last: 0, got: false, session: 0 }; stepMsg = '';
+    window.addEventListener('devicemotion', onMotion);
+    try { if (navigator.wakeLock) wl = await navigator.wakeLock.request('screen'); } catch (e) {}
+    setTimeout(() => { if (live && !live.got) { stopLive(); stepMsg = 'No sensor data received. Use Chrome on Android (https) or Safari on iPhone, and keep the app open.'; renderSteps(); } }, 3500);
+    renderSteps();
+}
+function stopLive() {
+    window.removeEventListener('devicemotion', onMotion); flushLive();
+    try { if (wl) wl.release(); } catch (e) {} wl = null; live = null;
+}
+document.addEventListener('visibilitychange', () => { if (document.hidden) flushLive(); else if (live && !wl && navigator.wakeLock) navigator.wakeLock.request('screen').then(x => { wl = x; }).catch(() => {}); });
+window.addEventListener('pagehide', flushLive);
+FX.stepsLive = async function () { if (live) { const n = live.session; stopLive(); stepMsg = `Stopped. ${n} step${n === 1 ? '' : 's'} counted this session.`; renderSteps(); } else await startLive(); };
+
+/* ----- actions ----- */
+FX.stepsAdd = n => { flushLive(); setSteps(TODAY(), stepsRaw(TODAY()) + n); stepMsg = ''; renderSteps(); };
+FX.stepsSetToday = function () {
+    const v = byId('fxStTotal').value; if (v === '' || !(Number(v) >= 0) || Number(v) > 200000) { stepMsg = 'Enter a number from 0 to 200,000.'; return renderSteps(); }
+    flushLive(); setSteps(TODAY(), Number(v)); stepMsg = 'Today\'s steps updated.'; renderSteps();
+};
+FX.stepsEditDay = function () {
+    const d = byId('fxStDate').value, v = byId('fxStDay').value;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || d > TODAY() || daysBetween(d, TODAY()) > 400) { stepMsg = 'Pick a date from the last 400 days (not in the future).'; return renderSteps(); }
+    if (v === '' || !(Number(v) >= 0) || Number(v) > 200000) { stepMsg = 'Enter a number from 0 to 200,000.'; return renderSteps(); }
+    flushLive(); setSteps(d, Number(v)); stepMsg = 'Saved.'; renderSteps();
+};
+FX.stepsSettings = function () {
+    const g = Number(byId('fxStGoal').value), st = Number(byId('fxStStride').value);
+    if (!(g >= 500 && g <= 100000) || !(st >= 30 && st <= 150)) { stepMsg = 'Goal must be 500-100,000 steps and stride 30-150 cm.'; return renderSteps(); }
+    const s = ST(); s.goal = Math.round(g); s.stride = Math.round(st); dirty = true; saveData(); stepMsg = 'Settings saved.'; renderSteps();
+};
+
+/* ----- dashboard card ----- */
+function renderStepsCard() {
+    let box = byId('fxStepsCard');
+    if (!box) { const host = byId('fxSmart'); if (!host) return; box = document.createElement('section'); box.className = 'panel'; box.id = 'fxStepsCard'; box.dataset.sec = 'steps'; host.insertAdjacentElement('afterend', box); }
+    const n = stepsOn(TODAY()), g = ST().goal, pct = clamp(Math.round(n / g * 100), 0, 100);
+    box.innerHTML = `<div class="panel-header" style="margin-bottom:10px;"><div><h2 class="panel-title">Steps</h2><span class="fx-muted">${fmtN(n)} / ${fmtN(g)} &middot; ${kmOf(n).toFixed(1)} km${live ? ' &middot; counting live' : ''}</span></div><button class="btn-primary" onclick="FX.go('steps')">Open</button></div>
+        <div class="fx-bar ${pct >= 100 ? 'green' : ''}" style="height:12px;"><i style="width:${pct}%"></i></div>
+        <div class="fx-chips" style="margin-top:12px;"><span class="quick-chip" onclick="FX.stepsAdd(500)">+500</span><span class="quick-chip" onclick="FX.stepsAdd(1000)">+1,000</span><span class="quick-chip" onclick="FX.stepsAdd(2000)">+2,000</span>${pct >= 100 ? '<span class="fx-xp" style="align-self:center;">Goal reached!</span>' : ''}</div>`;
+}
+
+/* ----- Steps page ----- */
+function renderSteps() {
+    const box = byId('fx-steps-body'); if (!box) return;
+    const s = ST(), today = TODAY(), n = stepsOn(today), pct = clamp(Math.round(n / s.goal * 100), 0, 100), days = lastDays(7);
+    const vals = days.map(d => stepsOn(d)), tot = vals.reduce((a, b) => a + b, 0), avg = Math.round(tot / 7), best = Math.max.apply(null, vals);
+    const bars = days.map((d, i) => `<div class="c"><span>${vals[i] >= 1000 ? (vals[i] / 1000).toFixed(1) + 'k' : vals[i]}</span><i style="height:${Math.max(3, Math.min(100, vals[i] / s.goal * 100))}%;${vals[i] >= s.goal ? 'background:var(--neon-green);' : ''}${d === today ? 'outline:2px solid var(--neon-purple);' : ''}"></i><span>${DAY_NAMES[weekdayOf(d)].slice(0, 2)}</span></div>`).join('');
+    const hist = lastDays(14).reverse().filter(d => stepsOn(d) > 0).map(d => `<div class="fx-row"><div class="grow"><div class="t">${fmtN(stepsOn(d))} steps</div><div class="s">${E(d)} &middot; ${kmOf(stepsOn(d)).toFixed(1)} km &middot; ${stepsOn(d) >= s.goal ? 'goal reached' : Math.round(stepsOn(d) / s.goal * 100) + '% of goal'}</div></div></div>`).join('');
+    const sensor = typeof DeviceMotionEvent !== 'undefined';
+    box.innerHTML = `${stepMsg ? `<div class="bd-banner warn" style="margin-bottom:14px;"><div class="bd-banner-text">${E(stepMsg)}</div></div>` : ''}
+    <section class="panel"><div style="display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap;"><div><div class="fx-muted">Today</div><div style="font-size:52px;font-weight:800;line-height:1.1;" id="fxStepsNum">${fmtN(n)}</div><div class="fx-muted">of ${fmtN(s.goal)} steps &middot; ${pct}%</div></div>
+        <div style="display:flex;gap:22px;flex-wrap:wrap;"><div><div class="fx-muted">Distance</div><b style="font-size:20px;">${kmOf(n).toFixed(2)} km</b></div><div><div class="fx-muted">Calories (est.)</div><b style="font-size:20px;">${fmtN(kcalOf(n))} kcal</b></div><div><div class="fx-muted">Goal streak</div><b style="font-size:20px;">${stepGoalStreak()} days</b></div></div></div>
+        <div class="fx-bar ${pct >= 100 ? 'green' : ''}" style="height:14px;margin:16px 0;"><i id="fxStepsBar" style="width:${pct}%"></i></div>
+        <div class="fx-chips" style="margin-bottom:14px;"><span class="quick-chip" onclick="FX.stepsAdd(500)">+500</span><span class="quick-chip" onclick="FX.stepsAdd(1000)">+1,000</span><span class="quick-chip" onclick="FX.stepsAdd(2000)">+2,000</span><span class="quick-chip" onclick="FX.stepsAdd(5000)">+5,000</span></div>
+        <div class="fx-form" style="grid-template-columns:1fr auto;margin-bottom:0;"><div class="input-group"><label>Set today's total (from your phone's health app)</label><input type="number" id="fxStTotal" min="0" max="200000" value="${stepsRaw(today)}"></div><button class="btn-primary" style="height:42px;" onclick="FX.stepsSetToday()">Save</button></div>
+        <div class="fx-note">Hitting your step goal gives <b>+5 Reality XP</b> for the day.</div></section>
+    <section class="panel"><h2 class="panel-title" style="margin-bottom:6px;">Live step counter <span class="fx-muted" style="font-size:12px;font-weight:500;">(experimental)</span></h2>
+        <div class="fx-note" style="margin:0 0 12px;">Counts steps with your phone's motion sensor. Websites cannot count in the background, so keep this app open and the screen on while you walk, with the phone in your hand or pocket. For exact numbers, copy the total from your phone's health app above.</div>
+        <button class="btn-primary" onclick="FX.stepsLive()" ${sensor ? '' : 'disabled'}>${live ? 'Stop counting (' + live.session + ' this session)' : 'Start live counting'}</button>${sensor ? '' : '<div class="fx-note">No motion sensor found on this device.</div>'}</section>
+    <section class="panel"><h2 class="panel-title" style="margin-bottom:10px;">Last 7 days</h2><div class="fx-grid">${tile('Total', fmtN(tot), '')}${tile('Daily average', fmtN(avg), '')}${tile('Best day', fmtN(best), '')}${tile('Goal days', vals.filter(v => v >= s.goal).length + '/7', '')}</div><div class="fx-bars">${bars}</div><div class="fx-note">Green bars reached your goal.</div></section>
+    <section class="panel"><h2 class="panel-title" style="margin-bottom:10px;">Settings</h2><div class="fx-form"><div class="input-group"><label>Daily goal (steps)</label><input type="number" id="fxStGoal" min="500" max="100000" value="${s.goal}"></div><div class="input-group"><label>Step length (cm)</label><input type="number" id="fxStStride" min="30" max="150" value="${s.stride}"></div></div><button class="btn-primary" onclick="FX.stepsSettings()">Save settings</button>
+        <h3 class="fx-h3" style="margin-top:22px;">Add or fix a past day</h3><div class="fx-form" style="grid-template-columns:1fr 1fr auto;"><div class="input-group"><label>Date</label><input type="date" id="fxStDate" max="${today}" value="${dateAdd(today, -1)}"></div><div class="input-group"><label>Steps</label><input type="number" id="fxStDay" min="0" max="200000" placeholder="e.g. 7500"></div><button class="btn-primary" style="height:42px;" onclick="FX.stepsEditDay()">Save</button></div>
+        <h3 class="fx-h3" style="margin-top:18px;">Recent days</h3>${hist || '<div class="fx-empty">No steps logged yet.</div>'}</section>`;
+}
+FX.pages.steps = function () { stepMsg = ''; renderSteps(); };
+
+/* ================= Explore hub + Coach, Garden, Stacking, Calendar, Year in Review, Ramadan, Certificates ================= */
+const BACK = `<button class="btn-primary" onclick="FX.go('explore')">All tools</button>`;
+const hashStr = s => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); };
+const cardDownload = (cv, name) => cv.toBlob(async blob => {
+    if (!blob) return notify({ type: 'error', title: 'Could not create the image' });
+    try { const file = new File([blob], name, { type: 'image/png' }); if (/Android|iPhone|iPad/i.test(navigator.userAgent) && navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: name }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    notify({ type: 'success', title: 'Image saved', message: name });
+}, 'image/png');
+
+/* ----- Explore hub ----- */
+const TOOLS = [
+    ['coach', 'Coach', 'Daily guidance, smart nudges and quick answers when you feel stuck.'],
+    ['garden', 'Habit Garden', 'Every habit is a plant. Keep your streak and watch it grow.'],
+    ['calendar', 'Calendar', 'Tap any day to see what you did: habits, tasks, steps, water.'],
+    ['year', 'Year in Review', 'Your whole year in numbers, ready to share.'],
+    ['ramadan', 'Ramadan Mode', 'Ramadan day counter, Quran tracker and Iftar countdown.'],
+    ['certs', 'Certificates', 'Download a certificate for every milestone you reach.']
+];
+function renderExplore() {
+    const box = byId('fx-explore-body'); if (!box) return;
+    box.innerHTML = `<section class="panel">${TOOLS.map(t => `<div class="fx-row"><div class="grow"><div class="t">${t[1]}</div><div class="s">${t[2]}</div></div><button class="btn-primary" style="padding:6px 14px;font-size:13px;" onclick="FX.go('${t[0]}')">Open</button></div>`).join('')}
+        <div class="fx-row"><div class="grow"><div class="t">Habit Templates</div><div class="s">Ready-made habit packs. Add many habits in one tap.</div></div><button class="btn-primary" style="padding:6px 14px;font-size:13px;" onclick="fxOpenTemplates()">Open</button></div></section>`;
+}
+FX.pages.explore = renderExplore;
+
+/* ----- Coach (smart rules that run on your device, not a chatbot) ----- */
+const TIPS = ['Make it tiny. A habit you can do in 2 minutes is a habit you will actually do.', 'Never miss twice. One missed day is an accident, two is the start of a new habit.', 'Stack it: after you pour your morning tea, do one small habit.', 'Make it easy to start. Lay out your shoes or open the book the night before.', 'Focus on who you want to become, not only on what you want to achieve.', 'Track it. What you see every day is what you keep doing.', 'Do your hardest habit when your energy is highest, and the easy ones when it is low.', 'Celebrate small wins right away. A tiny "yes!" teaches your brain to repeat it.', 'Reduce friction for good habits and add friction for bad ones (phone in another room).', 'Fewer habits done well beat many habits done badly. Start with 3.', 'Progress beats perfection. A short workout still counts.', 'Tell a friend your goal. Being seen makes you consistent.', 'Plan the "when and where": "After lunch, at my desk, I will read 5 pages."', 'Sleep is a habit multiplier. A rested brain finds discipline easier.', 'If you miss a day, restart with the easiest habit, not the hardest.', 'Use the 1% rule: be a little better than yesterday, not a different person.', 'Review your week every Sunday. Keep what works and drop what does not.', 'Link a habit to something you enjoy, like music while you walk.', 'Start before you feel ready. Motivation usually shows up after you begin.', 'Your environment beats willpower. Change the room, not just the plan.'];
+const COACH_QA = {
+    'I feel unmotivated': 'Motivation follows action, not the other way around. Pick your easiest habit and do only the first 2 minutes. Turn on Low energy mode on the dashboard so the app shows only what is realistic today.',
+    'I missed a few days': 'It happens to everyone. Do not try to make up for lost days. Open Smart Today and do the one easy Comeback step. Remember the rule: never miss twice.',
+    'I have too many habits': 'Keep a core of 3 to 5. Set the rest to Easy effort, or delete the ones you never open. You can always add them back from Habit Templates.',
+    'I cannot wake up early': 'Do not change everything at once. Move your wake time 10 minutes earlier each week, and put your phone across the room. Give yourself a reason to get up, like a drink or a song you like.',
+    'I keep forgetting': 'Attach the habit to something you already do (habit stacking) and set a reminder in Settings. Put a visual cue where you will see it, like the water bottle on your desk.',
+    'I feel stuck at the same level': 'Plateaus are normal. Raise the challenge a little: a slightly higher target, a new stacked habit, or a goal in the Goals page. Check your Progress page to see where you are slipping.'
+};
+let coachAns = '';
+function coachBrief() {
+    const d = TODAY(), hr = new Date().getHours(), sched = schedHabits(d), pending = sched.filter(x => x.history[d] !== true), doneN = sched.length - pending.length;
+    const cb = comebackState(), st = getCurrentStreak(), lines = [], actions = [];
+    const head = (hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening') + ', ' + profName() + '.';
+    const easy = pending.slice().sort((a, b) => effRank(a) - effRank(b) || (a.target || 1) - (b.target || 1))[0];
+    if (!sched.length) lines.push('Nothing is scheduled today. Rest is part of the plan, or add one tiny habit.');
+    else if (!pending.length) lines.push('All habits done today. Great work. Take a moment to notice how that feels.');
+    else if (cb) lines.push(`Welcome back. You missed ${cb.missed} day${cb.missed > 1 ? 's' : ''} and that is fine. Do just one thing: "${easy.name}".`);
+    else if (doneN === 0) lines.push(`Start small: "${easy.name}" takes the least effort. Do it first and the rest gets easier.`);
+    else lines.push(`${doneN} done, ${pending.length} to go. Next up: "${easy.name}".`);
+    if (st >= 3 && !getActiveDates().has(d) && hr >= 17) lines.push(`Your ${st}-day streak is at risk tonight. One small habit keeps it alive.`);
+    const d14 = lastDays(14), rates = appState.habits.map(h => { let sc = 0; d14.forEach(x => { if (isScheduled(h, x) && !isRestDay(x)) sc++; }); return { h, sc, r: sc ? rateFor(d14, [h]) : null }; }).filter(x => x.sc >= 4).sort((a, b) => a.r - b.r);
+    if (rates.length && rates[0].r < 50) { const w = rates[0]; lines.push(`"${w.h.name}" is your toughest habit (${w.r}% lately). Make it smaller so it is easy to say yes.`); if (w.h.effort !== 'easy') actions.push({ label: `Make "${w.h.name.slice(0, 24)}" easy`, fn: `FX.coachEasy('${E(w.h.id)}')` }); }
+    const strong = rates.slice().reverse().find(x => x.r >= 85 && !appState.habits.some(y => y.after === x.h.id));
+    if (strong) { lines.push(`"${strong.h.name}" is rock solid. Attach a new tiny habit right after it (habit stacking).`); actions.push({ label: 'Edit habits', fn: "changePage('habits', null)" }); }
+    return { head, lines, actions, tip: TIPS[hashStr(d) % TIPS.length] };
+}
+FX.coachEasy = function (id) { const h = appState.habits.find(x => x.id === id); if (!h) return; h.effort = 'easy'; if ((h.target || 1) > 1) h.target = Math.max(1, Math.ceil(h.target / 2)); saveData(); try { renderHabits(); } catch (e) {} notify({ type: 'success', title: 'Made easier', message: `"${h.name}" is now Easy${h.target > 1 ? ' with a smaller target' : ''}.` }); renderCoach(); };
+FX.coachAsk = q => { coachAns = q; renderCoach(); };
+function coachLineHtml() { try { const b = coachBrief(); return `<div class="fx-coach-line"><b>Coach:</b> ${E(b.lines[0] || b.tip)}</div>`; } catch (e) { return ''; } }
+function renderCoach() {
+    const box = byId('fx-coach-body'); if (!box) return;
+    const b = coachBrief();
+    box.innerHTML = `<section class="panel"><h2 class="panel-title" style="margin-bottom:10px;">${E(b.head)}</h2>${b.lines.map(l => `<div class="fx-insight"><div class="ic">›</div><div><div class="s" style="color:var(--text-main)">${E(l)}</div></div></div>`).join('')}
+        ${b.actions.length ? `<div class="fx-chips" style="margin:6px 0 12px;">${b.actions.map(a => `<span class="quick-chip" onclick="${a.fn}">${E(a.label)}</span>`).join('')}</div>` : ''}
+        <div class="fx-note" style="margin:8px 0 0;"><b>Tip of the day:</b> ${E(b.tip)}</div></section>
+        <section class="panel"><h2 class="panel-title" style="margin-bottom:10px;">Ask the Coach</h2><div class="fx-chips" style="margin-bottom:12px;">${Object.keys(COACH_QA).map(k => `<span class="quick-chip ${coachAns === k ? 'on' : ''}" onclick="FX.coachAsk('${E(k)}')">${E(k)}</span>`).join('')}</div>
+        ${coachAns && COACH_QA[coachAns] ? `<div class="fx-insight good"><div class="ic">✓</div><div><div class="t">${E(coachAns)}</div><div class="s">${E(COACH_QA[coachAns])}</div></div></div>` : '<div class="fx-muted">Tap a question to get practical advice.</div>'}
+        <div class="fx-note">The Coach uses simple rules and proven habit methods (like Atomic Habits) with your own data, on your device. It is not an AI chatbot.</div></section>`;
+}
+FX.pages.coach = () => { coachAns = ''; renderCoach(); };
+
+/* ----- Habit Garden ----- */
+const STAGES = [['Seed', 0], ['Sprout', 1], ['Growing', 3], ['Blooming', 7], ['Tree', 21], ['Golden tree', 60]];
+const stageOf = cur => { let s = 0; STAGES.forEach((x, i) => { if (cur >= x[1] && (i > 0 || true)) s = i; }); return cur <= 0 ? 0 : Math.max(1, s); };
+function plantSvg(stage, wilted, col) {
+    const leaf = wilted ? '#8a7a55' : '#3fbf6f', stem = wilted ? '#7a6a45' : '#2e9a57', fl = wilted ? '#9a8a6a' : (col || '#ff6fa5');
+    const rot = wilted ? 'transform="rotate(14 50 90)"' : '';
+    const ground = '<ellipse cx="50" cy="92" rx="30" ry="6" fill="#6b4a2f" opacity=".75"/>';
+    const lf = (x, y, r) => `<ellipse cx="${x}" cy="${y}" rx="9" ry="4.5" fill="${leaf}" transform="rotate(${r} ${x} ${y})"/>`;
+    let g = '';
+    if (stage === 0) g = `<ellipse cx="50" cy="86" rx="5" ry="3.5" fill="#a9772f"/>`;
+    else if (stage === 1) g = `<path d="M50 90 L50 70" stroke="${stem}" stroke-width="3" fill="none"/>${lf(43, 70, -30)}${lf(57, 70, 30)}`;
+    else if (stage === 2) g = `<path d="M50 90 L50 52" stroke="${stem}" stroke-width="3.5" fill="none"/>${lf(42, 74, -30)}${lf(58, 66, 30)}${lf(42, 58, -30)}${lf(58, 52, 30)}`;
+    else if (stage === 3) g = `<path d="M50 90 L50 44" stroke="${stem}" stroke-width="3.5" fill="none"/>${lf(42, 76, -30)}${lf(58, 68, 30)}${lf(42, 60, -30)}${[0, 72, 144, 216, 288].map(a => `<ellipse cx="50" cy="${wilted ? 40 : 34}" rx="5" ry="9" fill="${fl}" transform="rotate(${a} 50 ${wilted ? 44 : 42})"/>`).join('')}<circle cx="50" cy="${wilted ? 44 : 42}" r="5" fill="#ffd54a"/>`;
+    else g = `<rect x="46" y="52" width="8" height="40" rx="2" fill="${wilted ? '#6a5a3a' : '#7a5230'}"/><circle cx="50" cy="40" r="22" fill="${stage === 5 && !wilted ? '#f2c230' : leaf}"/><circle cx="36" cy="50" r="14" fill="${stage === 5 && !wilted ? '#f7d35c' : leaf}"/><circle cx="64" cy="50" r="14" fill="${stage === 5 && !wilted ? '#f7d35c' : leaf}"/>${stage === 5 && !wilted ? '<circle cx="42" cy="34" r="2.5" fill="#fff"/><circle cx="58" cy="44" r="2" fill="#fff"/><circle cx="50" cy="24" r="2" fill="#fff"/>' : ''}`;
+    return `<svg viewBox="0 0 100 100" width="100%" height="110" role="img">${ground}<g ${rot}>${g}</g></svg>`;
+}
+function renderGarden() {
+    const box = byId('fx-garden-body'); if (!box) return;
+    const hs = appState.habits.map(h => ({ h, s: habitStreaks(h) })), today = TODAY();
+    const info = hs.map(x => { const wilted = x.s.cur === 0 && x.s.best > 0 && !(x.h.history[today] === true); return { ...x, wilted, stage: wilted ? Math.max(1, Math.min(2, stageOf(x.s.best))) : stageOf(x.s.cur) }; });
+    const healthy = info.filter(x => !x.wilted).length, bloom = info.filter(x => x.stage >= 3 && !x.wilted).length;
+    const cards = info.map(x => { const next = STAGES[Math.min(5, x.stage + 1)], left = x.stage >= 5 ? 0 : next[1] - x.s.cur; return `<div class="fx-plant"><div>${plantSvg(x.stage, x.wilted, x.h.color)}</div><div class="t">${E(x.h.name)}</div><div class="s">${x.wilted ? 'Needs water! Do it today to revive it.' : `${STAGES[x.stage][0]} &middot; ${x.s.cur}-day streak`}</div>${!x.wilted && x.stage < 5 ? `<div class="s">${left} more day${left > 1 ? 's' : ''} to ${next[0]}</div>` : ''}</div>`; }).join('');
+    box.innerHTML = `<section class="panel"><div class="fx-grid" style="margin-bottom:0;">${tile('Plants', info.length, '')}${tile('Healthy', healthy + '/' + info.length, '')}${tile('Blooming or trees', bloom, '')}${tile('Garden health', info.length ? Math.round(healthy / info.length * 100) + '%' : '-', '')}</div><div class="fx-note">Keep a habit going to grow its plant: Seed, Sprout (1 day), Growing (3), Blooming (7), Tree (21), Golden tree (60). Miss it and the plant droops until you do it again.</div></section>
+        <section class="panel"><div class="fx-garden">${cards || '<div class="fx-empty">Add a habit to plant your first seed.</div>'}</div></section>`;
+}
+FX.pages.garden = renderGarden;
+
+/* ----- Habit Stacking ("After I ... I will ...") ----- */
+window.fxFillAfter = function (h) {
+    const sel = byId('habitAfterInput'); if (!sel) return;
+    sel.innerHTML = '<option value="">None (stand-alone habit)</option>' + appState.habits.filter(x => !h || x.id !== h.id).map(x => `<option value="${E(x.id)}">${E(x.name)}</option>`).join('');
+    sel.value = h && h.after && appState.habits.some(x => x.id === h.after) ? h.after : '';
+};
+window.fxReadAfter = function (editId) {
+    const sel = byId('habitAfterInput'), v = sel ? sel.value : ''; if (!v || !appState.habits.some(h => h.id === v) || v === editId) return '';
+    if (editId) { let cur = v, guard = 0; while (cur && guard++ < 50) { const h = appState.habits.find(x => x.id === cur); if (!h || !h.after) break; if (h.after === editId) return ''; cur = h.after; } }
+    return v;
+};
+window.fxStackTag = function (h) { const a = h.after && appState.habits.find(x => x.id === h.after); return a ? `<div class="fx-stack-tag">After: ${E(a.name)}</div>` : ''; };
+function stackChains() {
+    const hs = appState.habits, byAfter = {}; hs.forEach(h => { if (h.after && hs.some(x => x.id === h.after)) (byAfter[h.after] = byAfter[h.after] || []).push(h); });
+    const roots = hs.filter(h => byAfter[h.id] && !(h.after && hs.some(x => x.id === h.after))), out = [];
+    roots.forEach(r => { const chain = [r]; let cur = r, g = 0; while (byAfter[cur.id] && g++ < 20) { cur = byAfter[cur.id][0]; if (chain.includes(cur)) break; chain.push(cur); } out.push(chain); });
+    return out;
+}
+function renderStacks() {
+    let box = byId('fxStacks'); const note = byId('fxEnergyNote');
+    if (!box) { if (!note) return; box = document.createElement('div'); box.id = 'fxStacks'; note.insertAdjacentElement('afterend', box); }
+    const chains = stackChains();
+    box.innerHTML = chains.length ? `<div class="fx-stackbox"><b>Habit stacks</b>${chains.map(c => `<div class="fx-chain">${c.map(h => `<span class="fx-link ${h.history[TODAY()] === true ? 'done' : ''}">${h.history[TODAY()] === true ? '✓ ' : ''}${E(h.name)}</span>`).join('<span class="fx-arrow">→</span>')}</div>`).join('')}<div class="fx-muted" style="font-size:12px;margin-top:6px;">Tip: edit a habit and choose "Do this after" to build a chain.</div></div>` : '';
+}
+{ // cue the next habit in the stack when one is completed
+    const _th = window.toggleHabit;
+    if (typeof _th === 'function') window.toggleHabit = function (id) {
+        const h = appState.habits.find(x => x.id === id), was = !!(h && h.history[TODAY()] === true);
+        const r = _th.apply(this, arguments);
+        try { const now = !!(h && h.history[TODAY()] === true); if (h && !was && now) { const nx = appState.habits.find(x => x.after === h.id && x.history[TODAY()] !== true && isScheduled(x, TODAY())); if (nx) notify({ type: 'info', title: 'Next in your stack', message: `Now do: ${nx.name}` }); } } catch (e) {}
+        return r;
+    };
+}
+
+/* ----- Calendar view ----- */
+FX.cal = { off: 0, sel: '' };
+function renderCalendarView() {
+    const box = byId('fx-calendar-body'); if (!box) return;
+    const today = TODAY(), cal = FX.cal, base = new Date(); base.setDate(1); base.setMonth(base.getMonth() - cal.off);
+    const y = base.getFullYear(), m = base.getMonth(), dim = new Date(y, m + 1, 0).getDate(), lead = (new Date(y, m, 1).getDay() + 6) % 7;
+    const ds = i => `${y}-${pad2(m + 1)}-${pad2(i)}`;
+    const cells = '<span class="e"></span>'.repeat(lead) + Array.from({ length: dim }, (_, k) => {
+        const d = ds(k + 1), s = dayStat(d), fut = d > today, cls = fut || s.rest || !s.sched ? '' : s.pct >= 100 ? 'h4' : s.pct >= 70 ? 'h3' : s.pct >= 40 ? 'h2' : s.pct > 0 ? 'h1' : 'h0';
+        const dots = (stepsOn(d) >= ST().goal ? '<i style="background:var(--neon-cyan)"></i>' : '') + (waterOn(d).ml > 0 && waterOn(d).ml >= waterOn(d).goal ? '<i style="background:#4aa8ff"></i>' : '') + (focusMinsOn(d) > 0 ? '<i style="background:var(--neon-purple)"></i>' : '') + (tasksDoneOn(d) > 0 ? '<i style="background:var(--neon-yellow)"></i>' : '');
+        return `<button class="${cls} ${d === today ? 'today' : ''} ${d === cal.sel ? 'sel' : ''}" ${fut ? 'disabled' : `onclick="FX.calSel('${d}')"`}><span>${k + 1}</span><em>${dots}</em></button>`;
+    }).join('');
+    const label = new Date(y, m, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    let detail = '<div class="fx-muted">Tap a day to see the details.</div>';
+    if (cal.sel) {
+        const d = cal.sel, hs = appState.habits.filter(h => isScheduled(h, d) && !isRestDay(d)), tk = (appState.tasks || []).filter(t => t.done && t.done[d] === true), w = waterOn(d);
+        detail = `<h3 class="fx-h3">${new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}${isRestDay(d) ? ' <span class="fx-muted">(rest day)</span>' : ''}</h3>
+            ${hs.length ? hs.map(h => `<div class="fx-row" style="padding:8px 12px;"><div class="fx-chk ${h.history[d] === true ? 'on' : ''}">${h.history[d] === true ? '✓' : ''}</div><div class="grow"><div class="t" style="font-weight:500;">${E(h.name)}</div></div><span class="fx-muted">${h.history[d] === true ? 'done' : d < today ? 'missed' : 'planned'}</span></div>`).join('') : '<div class="fx-muted">No habits scheduled.</div>'}
+            <div class="fx-grid" style="margin:12px 0 0;">${tile('Tasks done', tk.length, '')}${tile('Steps', fmtN(stepsOn(d)), '')}${tile('Water', w.ml + ' ml', '')}${tile('Focus', fmtMin(focusMinsOn(d)), '')}</div>
+            ${tk.length ? `<div class="fx-note">${tk.map(t => E(t.title)).join(' &middot; ')}</div>` : ''}`;
+    }
+    box.innerHTML = `<section class="panel"><div class="panel-header" style="margin-bottom:12px;"><h2 class="panel-title">${label}</h2><div style="display:flex;gap:8px;"><button class="quick-chip" style="margin:0" onclick="FX.calMove(1)">&larr;</button><button class="quick-chip" style="margin:0;${cal.off === 0 ? 'opacity:.4;pointer-events:none' : ''}" onclick="FX.calMove(-1)">&rarr;</button></div></div>
+        <div class="fx-cal-head">${['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(x => `<span>${x}</span>`).join('')}</div><div class="fx-cal">${cells}</div>
+        <div class="fx-note">Colour = share of habits done. Dots: <span style="color:var(--neon-cyan)">steps goal</span>, <span style="color:#4aa8ff">water goal</span>, <span style="color:var(--neon-purple)">focus</span>, <span style="color:var(--neon-yellow)">tasks</span>.</div></section>
+        <section class="panel">${detail}</section>`;
+}
+FX.calMove = d => { FX.cal.off = Math.max(0, FX.cal.off + d); FX.cal.sel = ''; renderCalendarView(); };
+FX.calSel = d => { FX.cal.sel = d; renderCalendarView(); };
+FX.pages.calendar = () => { FX.cal.off = 0; FX.cal.sel = TODAY(); renderCalendarView(); };
+
+/* ----- Year in Review ----- */
+FX.yr = { year: new Date().getFullYear() };
+function yearStats(y) {
+    const today = TODAY(), pre = String(y), end = y === new Date().getFullYear() ? today : `${y}-12-31`;
+    const monthly = Array(12).fill(0), per = {}; let ticks = 0, active = 0, perfect = 0, best = 0, run = 0, tasks = 0, steps = 0, water = 0;
+    for (let d = `${y}-01-01`, i = 0; d <= end && i < 370; d = dateAdd(d, 1), i++) {
+        const t = ticksOn(d); ticks += t; monthly[Number(d.slice(5, 7)) - 1] += t;
+        if (t) { active++; run++; best = Math.max(best, run); } else run = 0;
+        const s = dayStat(d); if (s.sched && !s.rest && s.done === s.sched) perfect++;
+        tasks += tasksDoneOn(d); steps += stepsOn(d); const w = waterOn(d); if (w.ml > 0 && w.ml >= w.goal) water++;
+    }
+    appState.habits.forEach(h => { per[h.id] = Object.keys(h.history).filter(k => k.startsWith(pre) && h.history[k] === true).length; });
+    const top = appState.habits.slice().sort((a, b) => per[b.id] - per[a.id])[0];
+    const focus = appState.focus.reduce((a, s) => a + (s && String(s.date).startsWith(pre) ? (Number(s.mins) || 0) : 0), 0);
+    const bm = monthly.indexOf(Math.max.apply(null, monthly));
+    return { ticks, active, perfect, best, tasks, steps, water, focus, monthly, top: top && per[top.id] > 0 ? { name: top.name, n: per[top.id] } : null, bestMonth: monthly[bm] > 0 ? bm : -1 };
+}
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function yearYears() {
+    let first = new Date().getFullYear();
+    appState.habits.forEach(h => Object.keys(h.history).forEach(k => { const yy = Number(k.slice(0, 4)); if (yy >= 2000 && yy < first) first = yy; }));
+    const o = []; for (let y = new Date().getFullYear(); y >= first; y--) o.push(y); return o;
+}
+function renderYear() {
+    const box = byId('fx-year-body'); if (!box) return;
+    const y = FX.yr.year, s = yearStats(y), mx = Math.max(1, Math.max.apply(null, s.monthly));
+    box.innerHTML = `<section class="panel"><div class="task-tabs" style="margin-bottom:14px;">${yearYears().map(v => `<button class="tab-btn ${v === y ? 'active' : ''}" onclick="FX.yrSet(${v})">${v}</button>`).join('')}</div>
+        <h2 class="panel-title" style="margin-bottom:12px;">Your ${y} with GoalForce</h2>
+        <div class="fx-grid">${tile('Habits ticked', fmtN(s.ticks), '')}${tile('Active days', s.active, '')}${tile('Perfect days', s.perfect, '')}${tile('Longest run', s.best + ' days', '<div class="d">active days in a row</div>')}${tile('Tasks done', fmtN(s.tasks), '')}${tile('Steps', fmtN(s.steps), '')}${tile('Focus time', fmtMin(s.focus), '')}${tile('Water goal days', s.water, '')}</div>
+        ${s.top ? `<div class="fx-insight good"><div class="ic">★</div><div><div class="t">Top habit: ${E(s.top.name)}</div><div class="s">Done ${s.top.n} times in ${y}.${s.bestMonth >= 0 ? ` Best month: ${MONTHS[s.bestMonth]}.` : ''}</div></div></div>` : ''}
+        <div class="fx-bars" style="height:110px;">${s.monthly.map((v, i) => `<div class="c"><span>${v || ''}</span><i style="height:${Math.max(3, v / mx * 100)}%;${i === s.bestMonth ? 'background:var(--neon-green);' : ''}"></i><span>${MONTHS[i][0]}</span></div>`).join('')}</div></section>
+        <section class="panel"><h2 class="panel-title" style="margin-bottom:10px;">Share your year</h2><div class="fx-card-wrap"><canvas id="fxYearCanvas"></canvas><div style="flex:1;min-width:200px;"><div class="fx-note" style="margin:0 0 12px;">A picture of your year to post or send to friends.</div><div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn-primary" onclick="FX.yrSave()">Share / download</button></div></div></div></section>`;
+    const cv = byId('fxYearCanvas'); if (cv) { try { drawYearCard(cv, y, s); } catch (e) { logFx('year', e); } }
+}
+function drawYearCard(cv, y, s) {
+    const W = 1080, H = 1350; cv.width = W; cv.height = H; const c = cv.getContext('2d'), F = 'system-ui, -apple-system, "Segoe UI", sans-serif';
+    const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#0a0a1a'); g.addColorStop(.5, '#1a0b2e'); g.addColorStop(1, '#04141c'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+    c.fillStyle = '#00f0ff'; c.font = `800 44px ${F}`; c.fillText('GoalForce', 80, 120);
+    c.fillStyle = '#fff'; c.font = `800 150px ${F}`; c.fillText(String(y), 80, 300); c.font = `700 52px ${F}`; c.fillText('Year in Review', 80, 370);
+    c.fillStyle = '#9a9aa8'; c.font = `500 30px ${F}`; c.fillText(viewerName(), 80, 425);
+    const box = (x, yy, w, h, label, val, col) => { rr(c, x, yy, w, h, 30); c.fillStyle = 'rgba(255,255,255,.06)'; c.fill(); c.fillStyle = '#9a9aa8'; c.font = `500 26px ${F}`; c.fillText(label, x + 30, yy + 50); c.fillStyle = col; c.font = `800 70px ${F}`; c.fillText(String(val), x + 30, yy + 130); };
+    box(80, 480, 450, 160, 'Habits ticked', fmtN(s.ticks), '#00ff88'); box(550, 480, 450, 160, 'Perfect days', s.perfect, '#ffcc00');
+    box(80, 660, 450, 160, 'Longest run (days)', s.best, '#00f0ff'); box(550, 660, 450, 160, 'Active days', s.active, '#b026ff');
+    if (s.top) { c.fillStyle = '#9a9aa8'; c.font = `500 26px ${F}`; c.fillText('Top habit', 80, 880); c.fillStyle = '#fff'; c.font = `700 44px ${F}`; let t = s.top.name; while (c.measureText(t).width > 900 && t.length > 3) t = t.slice(0, -2); c.fillText(t, 80, 935); }
+    const mx = Math.max(1, Math.max.apply(null, s.monthly));
+    s.monthly.forEach((v, i) => { const h = Math.max(6, v / mx * 220), x = 80 + i * 77; rr(c, x, 1240 - h, 56, h, 10); c.fillStyle = i === s.bestMonth ? '#00ff88' : 'rgba(0,240,255,.7)'; c.fill(); c.fillStyle = '#9a9aa8'; c.font = `500 22px ${F}`; c.textAlign = 'center'; c.fillText(MONTHS[i][0], x + 28, 1275); c.textAlign = 'left'; });
+}
+FX.yrSet = v => { FX.yr.year = v; renderYear(); };
+FX.yrSave = () => { const cv = byId('fxYearCanvas'); if (cv) cardDownload(cv, `goalforce-year-${FX.yr.year}.png`); };
+FX.pages.year = () => { FX.yr.year = new Date().getFullYear(); renderYear(); };
+
+/* ----- Ramadan Mode ----- */
+const HF = (() => { try { return new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', { day: 'numeric', month: 'numeric', year: 'numeric' }); } catch (e) { return null; } })();
+function hijri(ds) { if (!HF) return null; const o = {}; try { HF.formatToParts(new Date(ds + 'T12:00:00')).forEach(p => { if (p.type === 'day' || p.type === 'month' || p.type === 'year') o[p.type] = parseInt(p.value, 10); }); } catch (e) { return null; } return o.month ? o : null; }
+function ramadanInfo() {
+    const today = TODAY(), h = hijri(today); if (!h) return null;
+    const lastDay = from => { let d = from, i = 0; while (i++ < 35) { const n = hijri(dateAdd(d, 1)); if (!n || n.month !== 9) break; d = dateAdd(d, 1); } return d; };
+    if (h.month === 9) { const last = lastDay(today); return { active: true, day: h.day, daysLeft: daysBetween(today, last), start: dateAdd(today, -(h.day - 1)), eid: dateAdd(last, 1) }; }
+    for (let i = 1; i <= 420; i++) { const d = dateAdd(today, i), n = hijri(d); if (n && n.month === 9 && n.day === 1) { const last = lastDay(d); return { active: false, startsIn: i, start: d, eid: dateAdd(last, 1), length: daysBetween(d, last) + 1 }; } }
+    return null;
+}
+function RS() {
+    const f = S(); if (!isObj(f.ramadan)) f.ramadan = {}; const r = f.ramadan;
+    r.pages = clamp(Math.floor(Number(r.pages)) || 0, 0, 604); if (!isObj(r.log)) r.log = {};
+    ['finishBy'].forEach(k => { if (typeof r[k] !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(r[k])) r[k] = ''; });
+    ['sehri', 'iftar'].forEach(k => { if (typeof r[k] !== 'string' || !/^([01]\d|2[0-3]):[0-5]\d$/.test(r[k])) r[k] = ''; });
+    return r;
+}
+const RAMADAN_HABITS = [['Fast today (Roza)', 'hard'], ['Pray all 5 prayers on time', 'normal'], ['Taraweeh prayer', 'normal'], ['Read Quran (1 juz)', 'normal'], ['Morning and evening dhikr', 'easy'], ['Give charity (sadaqah)', 'easy'], ['Make dua before Iftar', 'easy']];
+FX.rmAddHabits = () => { const n = addHabits(RAMADAN_HABITS); notify({ type: n ? 'success' : 'info', title: n ? `${n} Ramadan habit${n > 1 ? 's' : ''} added` : 'You already have these habits' }); renderRamadan(); };
+FX.rmPages = function (n) { const r = RS(), t = TODAY(); r.pages = clamp(r.pages + n, 0, 604); r.log[t] = clamp((Number(r.log[t]) || 0) + n, 0, 604); Object.keys(r.log).forEach(k => { if (daysBetween(k, t) > 60) delete r.log[k]; }); dirty = true; saveData(); renderRamadan(); };
+FX.rmSave = function () {
+    const r = RS(), fb = byId('fxRmFinish').value, se = byId('fxRmSehri').value, ift = byId('fxRmIftar').value, pg = byId('fxRmPages').value;
+    if (fb && (!/^\d{4}-\d{2}-\d{2}$/.test(fb) || fb < TODAY())) return notify({ type: 'error', title: 'Finish date must be today or later' });
+    if (pg !== '' && !(Number(pg) >= 0 && Number(pg) <= 604)) return notify({ type: 'error', title: 'Pages must be 0 to 604' });
+    r.finishBy = fb || ''; r.sehri = se || ''; r.iftar = ift || ''; if (pg !== '') r.pages = Math.floor(Number(pg));
+    dirty = true; saveData(); renderRamadan(); notify({ type: 'success', title: 'Saved' });
+};
+let rmTimer = null;
+function rmCountdown() {
+    const el = byId('fxRmCount'); if (!el) { clearInterval(rmTimer); rmTimer = null; return; }
+    const r = RS(), now = new Date(), at = (hhmm, add) => { const [h, m] = hhmm.split(':').map(Number), d = new Date(now); d.setDate(d.getDate() + add); d.setHours(h, m, 0, 0); return d; };
+    const ev = []; [0, 1].forEach(a => { if (r.sehri) ev.push(['Sehri ends', at(r.sehri, a)]); if (r.iftar) ev.push(['Iftar', at(r.iftar, a)]); });
+    const next = ev.filter(e => e[1] > now).sort((a, b) => a[1] - b[1])[0];
+    if (!next) { el.textContent = 'Set your Sehri and Iftar times below'; return; }
+    const s = Math.floor((next[1] - now) / 1000); el.textContent = `${next[0]} in ${pad2(Math.floor(s / 3600))}:${pad2(Math.floor(s % 3600 / 60))}:${pad2(s % 60)}`;
+}
+function renderRamadan() {
+    const box = byId('fx-ramadan-body'); if (!box) return;
+    const info = ramadanInfo(), r = RS(), t = TODAY();
+    let head;
+    if (!info) head = '<div class="fx-muted">Could not work out the Hijri calendar on this browser.</div>';
+    else if (info.active) head = `<div class="fx-muted">Ramadan Mubarak</div><div style="font-size:44px;font-weight:800;line-height:1.1;">Day ${info.day}</div><div class="fx-muted">${info.daysLeft} day${info.daysLeft === 1 ? '' : 's'} left &middot; Eid around ${E(info.eid)}</div>`;
+    else head = `<div class="fx-muted">Next Ramadan</div><div style="font-size:44px;font-weight:800;line-height:1.1;">${info.startsIn} days</div><div class="fx-muted">starts around ${E(info.start)} &middot; Eid around ${E(info.eid)}</div>`;
+    const days = r.finishBy ? daysBetween(t, r.finishBy) + 1 : (info && info.active ? info.daysLeft + 1 : 0), left = 604 - r.pages, perDay = days > 0 && left > 0 ? Math.ceil(left / days) : 0, todayRead = Number(r.log[t]) || 0, pct = Math.round(r.pages / 604 * 100);
+    box.innerHTML = `<section class="panel">${head}<div class="fx-note">Dates use the Umm al-Qura calendar and can differ by a day from your local moon sighting.</div>
+        <div class="fx-lead-msg" style="margin-top:12px;" id="fxRmCount">&nbsp;</div></section>
+        <section class="panel"><h2 class="panel-title" style="margin-bottom:10px;">Quran tracker</h2><div class="fx-grid"><div class="fx-tile"><div class="k">Pages read</div><div class="v">${r.pages}<span class="fx-muted" style="font-size:14px;"> / 604</span></div><div class="d">${pct}% &middot; about ${(r.pages / 20).toFixed(1)} juz</div></div><div class="fx-tile"><div class="k">Today</div><div class="v">${todayRead}</div><div class="d">pages</div></div><div class="fx-tile"><div class="k">Needed per day</div><div class="v">${perDay || '-'}</div><div class="d">${days > 0 ? 'to finish in ' + days + ' day' + (days > 1 ? 's' : '') : 'set a finish date'}</div></div></div>
+        <div class="fx-bar green" style="height:12px;margin-bottom:14px;"><i style="width:${pct}%"></i></div>
+        <div class="fx-chips"><span class="quick-chip" onclick="FX.rmPages(1)">+1 page</span><span class="quick-chip" onclick="FX.rmPages(5)">+5</span><span class="quick-chip" onclick="FX.rmPages(10)">+10</span><span class="quick-chip" onclick="FX.rmPages(20)">+20 (1 juz)</span><span class="quick-chip" onclick="FX.rmPages(-1)">-1</span></div></section>
+        <section class="panel"><h2 class="panel-title" style="margin-bottom:10px;">Times and goals</h2><div class="fx-note" style="margin:0 0 10px;">Enter the Sehri and Iftar times from your local mosque or prayer app. They depend on your city, so the app does not guess them.</div>
+        <div class="fx-form"><div class="input-group"><label>Sehri ends</label><input type="time" id="fxRmSehri" value="${E(r.sehri)}"></div><div class="input-group"><label>Iftar</label><input type="time" id="fxRmIftar" value="${E(r.iftar)}"></div><div class="input-group"><label>Finish Quran by</label><input type="date" id="fxRmFinish" min="${t}" value="${E(r.finishBy)}"></div><div class="input-group"><label>Total pages read</label><input type="number" id="fxRmPages" min="0" max="604" value="${r.pages}"></div></div><button class="btn-primary" onclick="FX.rmSave()">Save</button></section>
+        <section class="panel"><h2 class="panel-title" style="margin-bottom:6px;">Ramadan habits</h2><div class="fx-note" style="margin:0 0 12px;">${RAMADAN_HABITS.map(h => E(h[0])).join(' &middot; ')}</div><button class="btn-primary" onclick="FX.rmAddHabits()">Add Ramadan habits</button></section>`;
+    rmCountdown(); clearInterval(rmTimer); rmTimer = setInterval(rmCountdown, 1000);
+}
+FX.pages.ramadan = renderRamadan;
+
+/* ----- Certificates ----- */
+const MS = [
+    ['streak7', 'Seven Day Streak', 'for keeping a habit streak for 7 days in a row', () => getLongestStreak() >= 7, () => `${Math.min(getLongestStreak(), 7)}/7 days`],
+    ['streak21', '21 Day Streak', 'for keeping a habit streak for 21 days in a row', () => getLongestStreak() >= 21, () => `${Math.min(getLongestStreak(), 21)}/21 days`],
+    ['streak30', '30 Day Streak', 'for keeping a habit streak for 30 days in a row', () => getLongestStreak() >= 30, () => `${Math.min(getLongestStreak(), 30)}/30 days`],
+    ['streak60', '60 Day Streak', 'for keeping a habit streak for 60 days in a row', () => getLongestStreak() >= 60, () => `${Math.min(getLongestStreak(), 60)}/60 days`],
+    ['streak100', '100 Day Streak', 'for keeping a habit streak for 100 days in a row', () => getLongestStreak() >= 100, () => `${Math.min(getLongestStreak(), 100)}/100 days`],
+    ['streak365', 'One Year Streak', 'for keeping a habit streak for a full year', () => getLongestStreak() >= 365, () => `${Math.min(getLongestStreak(), 365)}/365 days`],
+    ['lvl5', 'Level 5 Reached', 'for reaching Level 5 on GoalForce', () => getLevelInfo(appState.totalXp).level >= 5, () => `Level ${getLevelInfo(appState.totalXp).level}/5`],
+    ['lvl10', 'Level 10 Reached', 'for reaching Level 10 on GoalForce', () => getLevelInfo(appState.totalXp).level >= 10, () => `Level ${getLevelInfo(appState.totalXp).level}/10`],
+    ['xp1000', '1,000 XP', 'for earning 1,000 XP', () => appState.totalXp >= 1000, () => `${Math.min(appState.totalXp, 1000)}/1000 XP`],
+    ['xp5000', '5,000 XP', 'for earning 5,000 XP', () => appState.totalXp >= 5000, () => `${Math.min(appState.totalXp, 5000)}/5000 XP`],
+    ['t100', '100 Habits Completed', 'for completing 100 habits', () => getTotalCompleted() >= 100, () => `${Math.min(getTotalCompleted(), 100)}/100`],
+    ['t500', '500 Habits Completed', 'for completing 500 habits', () => getTotalCompleted() >= 500, () => `${Math.min(getTotalCompleted(), 500)}/500`],
+    ['f10', '10 Hours of Focus', 'for 10 hours of focused work', () => appState.focus.reduce((a, s) => a + (Number(s && s.mins) || 0), 0) >= 600, () => `${Math.min(Math.round(appState.focus.reduce((a, s) => a + (Number(s && s.mins) || 0), 0) / 60), 10)}/10 h`]
+];
+function drawCertificate(cv, m) {
+    const W = 1600, H = 1130; cv.width = W; cv.height = H; const c = cv.getContext('2d'), SF = 'Georgia, "Palatino Linotype", Palatino, serif', F = 'system-ui, sans-serif';
+    c.fillStyle = '#fbf6e9'; c.fillRect(0, 0, W, H);
+    c.strokeStyle = '#b8892b'; c.lineWidth = 10; c.strokeRect(40, 40, W - 80, H - 80); c.lineWidth = 3; c.strokeRect(66, 66, W - 132, H - 132);
+    [[66, 66], [W - 66, 66], [66, H - 66], [W - 66, H - 66]].forEach(([x, y]) => { c.fillStyle = '#b8892b'; c.beginPath(); c.arc(x, y, 14, 0, 7); c.fill(); });
+    c.textAlign = 'center'; c.fillStyle = '#7a5a14'; c.font = `700 30px ${F}`; c.fillText('G O A L F O R C E', W / 2, 150);
+    c.fillStyle = '#2b2118'; c.font = `700 74px ${SF}`; c.fillText('Certificate of Achievement', W / 2, 270);
+    c.fillStyle = '#6b5a45'; c.font = `italic 34px ${SF}`; c.fillText('This certificate is proudly presented to', W / 2, 360);
+    let nm = profName(); c.fillStyle = '#7a1f1f'; c.font = `italic 700 92px ${SF}`; while (c.measureText(nm).width > W - 300 && nm.length > 3) nm = nm.slice(0, -2); c.fillText(nm, W / 2, 500);
+    c.strokeStyle = '#b8892b'; c.lineWidth = 2; c.beginPath(); c.moveTo(W / 2 - 380, 530); c.lineTo(W / 2 + 380, 530); c.stroke();
+    c.fillStyle = '#6b5a45'; c.font = `italic 34px ${SF}`; c.fillText(m[2], W / 2, 610);
+    c.fillStyle = '#2b2118'; c.font = `700 70px ${SF}`; c.fillText(m[1], W / 2, 725);
+    c.fillStyle = '#6b5a45'; c.font = `500 28px ${F}`; c.fillText('Small steps. Big changes.', W / 2, 800);
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    c.strokeStyle = '#2b2118'; c.lineWidth = 2; [[300, 'Issued on'], [W - 300, 'Issued by']].forEach(([x, l]) => { c.beginPath(); c.moveTo(x - 190, 960); c.lineTo(x + 190, 960); c.stroke(); c.fillStyle = '#2b2118'; c.font = `600 30px ${SF}`; c.fillText(l === 'Issued on' ? date : 'GoalForce', x, 945); c.fillStyle = '#6b5a45'; c.font = `500 24px ${F}`; c.fillText(l, x, 995); });
+    c.fillStyle = '#b8892b'; c.beginPath(); c.arc(W / 2, 930, 62, 0, 7); c.fill(); c.fillStyle = '#fbf6e9'; c.beginPath(); c.arc(W / 2, 930, 52, 0, 7); c.fill(); c.fillStyle = '#b8892b'; c.font = `700 64px ${SF}`; c.fillText('G', W / 2, 953);
+}
+function renderCerts() {
+    const box = byId('fx-certs-body'); if (!box) return;
+    const earned = MS.filter(m => m[3]()), locked = MS.filter(m => !m[3]());
+    box.innerHTML = `<section class="panel"><h2 class="panel-title" style="margin-bottom:6px;">Earned (${earned.length})</h2><div class="fx-note" style="margin:0 0 12px;">Your name on the certificate comes from your Profile.</div>
+        ${earned.map(m => `<div class="fx-row"><div class="fx-chk on">✓</div><div class="grow"><div class="t">${E(m[1])}</div><div class="s">${E(m[2])}</div></div><button class="btn-primary" style="padding:6px 12px;font-size:12px;" onclick="FX.certSave('${m[0]}')">Download</button></div>`).join('') || '<div class="fx-empty">Reach your first milestone to earn a certificate.</div>'}</section>
+        <section class="panel"><h2 class="panel-title" style="margin-bottom:12px;">Next milestones</h2>${locked.map(m => `<div class="fx-row"><div class="fx-chk"></div><div class="grow"><div class="t">${E(m[1])}</div><div class="s">${E(m[4]())}</div></div></div>`).join('') || '<div class="fx-empty">You have earned them all!</div>'}</section>`;
+}
+FX.certSave = id => { const m = MS.find(x => x[0] === id); if (!m || !m[3]()) return; const cv = document.createElement('canvas'); drawCertificate(cv, m); cardDownload(cv, `goalforce-certificate-${id}.png`); };
+FX.pages.certs = renderCerts;
+
 /* ================= Login: Google / Apple ================= */
 window.fxOAuth = function (provider) {
     if (!['google', 'apple'].includes(provider)) return;
@@ -1358,6 +1794,8 @@ window.fxOAuth = function (provider) {
 const NAV = [
     ['profile', 'Profile', '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>', false],
     ['friends', 'Friends', '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M19 8v6M16 11h6"/>', false],
+    ['explore', 'Explore', '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>', false],
+    ['steps', 'Steps', '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>', false],
     ['community', 'Community', '<path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.2A8.4 8.4 0 0 1 12 3a8.5 8.5 0 0 1 9 8.5z"/>', false],
     ['reports', 'Progress', '<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>', false],
     ['focus', 'Focus', '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/>', true],
@@ -1386,6 +1824,14 @@ function buildNav() {
 function buildPages() {
     makePage('profile', 'Profile', 'Your photo, details, account and stats');
     makePage('friends', 'Friends', 'Add friends and compete on the leaderboard');
+    makePage('explore', 'Explore', 'Coach, garden, calendar, year in review and more');
+    makePage('coach', 'Coach', 'Daily guidance based on your habits', BACK);
+    makePage('garden', 'Habit Garden', 'Grow a plant for every habit', BACK);
+    makePage('calendar', 'Calendar', 'See any day at a glance', BACK);
+    makePage('year', 'Year in Review', 'Your year in numbers', BACK);
+    makePage('ramadan', 'Ramadan Mode', 'Day counter, Quran tracker and Iftar countdown', BACK);
+    makePage('certs', 'Certificates', 'Download a certificate for your milestones', BACK);
+    makePage('steps', 'Steps', 'Track your daily steps, distance and goal');
     makePage('community', 'Community', 'Share wins and photos, cheer others on');
     makePage('reports', 'Progress', 'Weekly report, monthly stats, streaks and insights');
     makePage('focus', 'Focus Mode', 'Block distractions and get deep work done');
@@ -1399,7 +1845,7 @@ function wrap(name, after) {
 wrap('updateUI', () => renderDash());
 wrap('updateUserGreeting', () => { applyGreetingName(); applyAvatar(); });
 wrap('saveData', () => { if (!inEval) scheduleEval(); });
-wrap('renderHabits', () => renderEnergyNote());
+wrap('renderHabits', () => { renderEnergyNote(); renderStacks(); });
 wrap('renderHomeTasks', () => renderEnergyNote());
 wrap('changePage', id => { if (FX.pages[id]) FX.pages[id](); });
 wrap('renderPrefsPanels', () => enhancePrefs());
